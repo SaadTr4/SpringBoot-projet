@@ -1,4 +1,4 @@
-package fr.projetjee.enums;
+package fr.springboot.backend.enums;
 
 public enum ContractType {
     PERMANENT_FULL_TIME("CDI"),

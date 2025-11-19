@@ -1,4 +1,4 @@
-package fr.projetjee.enums;
+package fr.springboot.backend.enums;
 
 public enum Action {
 

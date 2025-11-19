@@ -1,8 +1,8 @@
 package fr.springboot.backend.dto;
 
-import fr.projetjee.enums.ContractType;
-import fr.projetjee.enums.Grade;
-import fr.projetjee.enums.Role;
+import fr.springboot.backend.enums.ContractType;
+import fr.springboot.backend.enums.Grade;
+import fr.springboot.backend.enums.Role;
 import fr.springboot.backend.model.User;
 import fr.springboot.backend.util.PasswordUtil;
 

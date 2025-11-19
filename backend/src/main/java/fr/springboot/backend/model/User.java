@@ -1,6 +1,6 @@
 package fr.springboot.backend.model;
 
-import fr.projetjee.enums.ContractType;
+import fr.springboot.backend.enums.ContractType;
 import jakarta.persistence.*;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -12,8 +12,8 @@ import java.sql.Blob;
 import java.util.HashSet;
 import java.util.Set;
 
-import fr.projetjee.enums.Grade;
-import fr.projetjee.enums.Role;
+import fr.springboot.backend.enums.Grade;
+import fr.springboot.backend.enums.Role;
 
 /**
  * Entité représentant un utilisateur/employé de l'entreprise

@@ -1,6 +1,6 @@
 package fr.springboot.backend.model;
 
-import fr.projetjee.enums.Status;
+import fr.springboot.backend.enums.Status;
 import jakarta.persistence.*;
 
 import java.io.Serializable;
