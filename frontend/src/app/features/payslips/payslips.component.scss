@@ -1,0 +1,115 @@
+.page-wrapper {
+  padding: 20px;
+  color: white;
+}
+
+/* ===== Glass Card ===== */
+.glass-card {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Header interne */
+.welcome-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.welcome-sub {
+  margin: 3px 0 0;
+  color: #e5e7eb;
+}
+
+/* Buttons */
+.welcome-logout,
+.btn-action,
+.btn-delete {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.welcome-logout,
+.btn-action {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+}
+
+.btn-delete {
+  background: #ef4444;
+}
+
+/* ===== Table ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  padding: 10px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.15);
+  color: #e0e7ff;
+}
+
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+tr:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== Modal ===== */
+.modal-layer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 300;
+}
+
+.modal-layer.open {
+  display: flex;
+}
+
+.modal-box {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 20px;
+  border-radius: 16px;
+  width: 400px;
+  backdrop-filter: blur(12px);
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+}

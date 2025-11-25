@@ -1,0 +1,31 @@
+<header class="app-header">
+
+  <div class="brand">
+    <span class="brand-dot"></span>
+    <span class="brand-text">Gestion RH</span>
+  </div>
+
+  <div class="header-actions">
+
+    <!-- Avatar -->
+    <button class="avatar-btn" (click)="toggleMenu()" aria-expanded="{{ menuOpen }}">
+      <img src="assets/images/avatar-default.png" alt="Profil">
+    </button>
+
+    <!-- Menu Profil -->
+    <div class="profile-menu" [class.open]="menuOpen">
+      <div class="pm-user">
+        <img src="assets/images/avatar-default.png" alt="Profil">
+        <div>
+          <strong class="pm-name">Admin</strong>
+          <span class="pm-role">Employé</span>
+        </div>
+      </div>
+
+      <a class="pm-item" routerLink="/profile">Voir le profil</a>
+      <button class="pm-item danger" (click)="logout()">Se déconnecter</button>
+
+    </div>
+
+  </div>
+</header>

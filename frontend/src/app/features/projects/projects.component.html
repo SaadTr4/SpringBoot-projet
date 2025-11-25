@@ -1,0 +1,65 @@
+<div class="page-wrapper">
+
+  <!-- Header interne -->
+  <div class="glass-card welcome-card">
+    <div class="welcome-left">
+      <div>
+        <h2 class="welcome-title">Liste des projets</h2>
+        <p class="welcome-sub">Connecté en tant que {{ username }}</p>
+      </div>
+    </div>
+    <button class="welcome-logout" (click)="openModal()">+ Ajouter</button>
+  </div>
+
+  <!-- Tableau -->
+  <div class="glass-card table-card">
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom du projet</th>
+        <th>Chef de projet</th>
+        <th>Statut</th>
+        <th>Employés affectés</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let p of projects">
+        <td>{{ p.id }}</td>
+        <td>{{ p.nom }}</td>
+        <td>{{ p.chefProjet }}</td>
+        <td>{{ p.statut }}</td>
+        <td>{{ p.employesAffectes.join(', ') }}</td>
+        <td class="actions">
+          <button class="btn-action">Modifier</button>
+          <button class="btn-delete">Supprimer</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Modal Ajouter -->
+<div class="modal-layer" [class.open]="modalOpen">
+  <div class="modal-box">
+    <h3>Ajouter un projet</h3>
+
+    <form>
+      <input class="input" placeholder="Nom du projet" />
+      <input class="input" placeholder="Chef de projet" />
+
+      <select class="input">
+        <option>En cours</option>
+        <option>Terminé</option>
+        <option>Annulé</option>
+      </select>
+
+      <button class="welcome-logout" style="margin-top:10px;">Enregistrer</button>
+      <button type="button" class="btn-delete" style="margin-top:10px;" (click)="closeModal()">Annuler</button>
+    </form>
+  </div>
+</div>

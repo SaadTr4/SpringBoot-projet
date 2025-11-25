@@ -1,0 +1,28 @@
+<div class="bg"></div>
+
+<div class="auth-card">
+  <h4 class="auth-title">Connexion</h4>
+
+  <!-- Formulaire -->
+  <form #f="ngForm" (ngSubmit)="login(f.value)">
+
+    <div class="form-row">
+      <label class="label">Nom d'utilisateur</label>
+      <input class="input" name="username" ngModel required placeholder="ex: jdupont" />
+    </div>
+
+    <div class="form-row">
+      <label class="label">Mot de passe</label>
+      <input class="input" type="password" name="password" ngModel required placeholder="••••••••" />
+    </div>
+
+    <button class="btn" type="submit">Se connecter</button>
+  </form>
+
+  <!-- Message d’erreur -->
+  <div class="alert" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</div>
+
+<footer class="footer">© 2025 - Application Gestion RH</footer>

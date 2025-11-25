@@ -1,0 +1,100 @@
+.page-wrapper {
+  padding: 20px;
+  color: white;
+}
+
+/* ================== Glass Card ================== */
+.glass-card {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* ================== Header interne ================== */
+.welcome-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.welcome-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.welcome-sub {
+  margin: 3px 0 0;
+  color: #e5e7eb;
+}
+
+/* ================== Boutons ================== */
+.welcome-logout,
+.btn-action,
+.btn-delete {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  backdrop-filter: blur(10px);
+  transition: 0.2s;
+}
+
+.welcome-logout,
+.btn-action {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+}
+
+.btn-action:hover {
+  filter: brightness(1.1);
+}
+
+.btn-delete {
+  background: #ef4444;
+}
+
+.btn-delete:hover {
+  filter: brightness(1.17);
+}
+
+/* ================== Tableau ================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 10px;
+  font-size: 0.9rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: #e0e7ff;
+}
+
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+tr:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}

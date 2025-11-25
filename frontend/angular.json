@@ -101,5 +101,13 @@
         }
       }
     }
-  }
+  },
+  "cli": {
+    "analytics": false
+  },
+  "styles": {
+    "node_modules/font-awesome/css/font-awesome.min.css",
+    "src/styles.scss"
+    }
+
 }

@@ -1,1 +1,44 @@
-/* You can add global styles to this file, and also import other style files */
+/* ====== FOND GLOBAL : image + assombrissement + blur ====== */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
+
+  /* Image du background */
+  background-image: url('assets/images/background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+
+  /* ⚠️ NE PAS TOUCHER AU TEXTE → brightness appliqué SEULEMENT sur l'image (dans ::before) */
+}
+
+/* ---- Overlay sombre + flou séparé ---- */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  /* Réutilise la même image */
+  background-image: inherit;
+  background-size: inherit;
+  background-position: inherit;
+  background-attachment: inherit;
+
+  /* 👉 Ici on assombrit et on floute */
+  filter: brightness(0.40) blur(4px);
+
+  /* Voile sombre supplémentaire */
+  background-color: rgba(0, 0, 0, 0.45);
+}
+
+/* ====== GLASSMORPHISM (inchangé) ====== */
+.glass {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}

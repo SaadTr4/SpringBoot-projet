@@ -1,0 +1,72 @@
+<div class="page-wrapper">
+
+  <!-- Carte du haut -->
+  <div class="glass-card welcome-card">
+    <div class="welcome-left">
+      <div>
+        <h2 class="welcome-title">Liste des employés</h2>
+        <p class="welcome-sub">Connecté en tant que {{ username }}</p>
+      </div>
+    </div>
+
+    <button class="welcome-logout" (click)="openModal()">+ Ajouter</button>
+  </div>
+
+  <!-- Tableau -->
+  <div class="glass-card table-card">
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th>Département</th>
+        <th>Projet</th>
+        <th>Salaire (€)</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let e of employees">
+        <td>{{ e.id }}</td>
+        <td>{{ e.nom }}</td>
+        <td>{{ e.prenom }}</td>
+        <td>{{ e.email }}</td>
+        <td>{{ e.role }}</td>
+        <td>{{ e.departement }}</td>
+        <td>{{ e.projet }}</td>
+        <td>{{ e.salaire }}</td>
+        <td class="actions">
+          <button class="btn-action">Modifier</button>
+          <button class="btn-delete">Supprimer</button>
+        </td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+</div>
+
+<!-- Modal Ajouter -->
+<div class="modal-layer" [class.open]="modalOpen">
+  <div class="modal-box">
+    <h3>Ajouter un employé</h3>
+
+    <form>
+      <input class="input" placeholder="Nom" />
+      <input class="input" placeholder="Prénom" />
+      <input class="input" placeholder="Email" />
+      <input class="input" placeholder="Rôle" />
+      <input class="input" placeholder="Département" />
+      <input class="input" placeholder="Projet" />
+      <input class="input" type="number" placeholder="Salaire (€)" />
+
+      <button class="welcome-logout" style="margin-top:10px;">Enregistrer</button>
+      <button type="button" class="btn-delete" style="margin-top:10px;" (click)="closeModal()">Annuler</button>
+    </form>
+  </div>
+</div>
