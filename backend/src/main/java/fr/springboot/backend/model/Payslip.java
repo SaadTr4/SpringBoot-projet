@@ -10,6 +10,7 @@ import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+
 @Entity
 @Table(name = "payslip")
 public class Payslip implements Serializable {
@@ -44,7 +45,7 @@ public class Payslip implements Serializable {
     private BigDecimal netPay;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "registration_number", referencedColumnName = "registration_number")
+    @JoinColumn(name = "matricule", referencedColumnName = "matricule")
     private User user;
 
     // ===============================

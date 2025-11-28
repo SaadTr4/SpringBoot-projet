@@ -1,35 +1,45 @@
 package fr.springboot.backend.dto;
 
-public class UserDTO {
-    private Integer id;
+import fr.springboot.backend.enums.ContractType;
+import fr.springboot.backend.enums.Grade;
+import fr.springboot.backend.enums.Role;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+public class RegisterRequest {
+
+    @NotBlank(message = "Le matricule est obligatoire")
     private String matricule;
+
+    @NotBlank(message = "Le nom est obligatoire")
     private String lastName;
+
+    @NotBlank(message = "Le prénom est obligatoire")
     private String firstName;
-    private String fullName;
+
+    @NotBlank(message = "L'email est obligatoire")
+    @Email(message = "L'email doit être valide")
     private String email;
+
     private String phone;
     private String address;
-    private String grade;
-    private String role;
-    private String contractType;
+
+    private Grade grade;
+
+    @NotNull(message = "Le rôle est obligatoire")
+    private Role role;
+
+    private ContractType contractType;
     private Double baseSalary;
-    private String department;
     private Integer departmentId;
-    private String position;
     private Integer positionId;
 
-    // Constructeur vide
-    public UserDTO() {
-    }
+    // ========== CONSTRUCTEURS ==========
 
-    // Getters et Setters COMPLETS
-    public Integer getId() {
-        return id;
-    }
+    public RegisterRequest() {}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    // ========== GETTERS & SETTERS ==========
 
     public String getMatricule() {
         return matricule;
@@ -53,14 +63,6 @@ public class UserDTO {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -87,27 +89,27 @@ public class UserDTO {
         this.address = address;
     }
 
-    public String getGrade() {
+    public Grade getGrade() {
         return grade;
     }
 
-    public void setGrade(String grade) {
+    public void setGrade(Grade grade) {
         this.grade = grade;
     }
 
-    public String getRole() {
+    public Role getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    public void setRole(Role role) {
         this.role = role;
     }
 
-    public String getContractType() {
+    public ContractType getContractType() {
         return contractType;
     }
 
-    public void setContractType(String contractType) {
+    public void setContractType(ContractType contractType) {
         this.contractType = contractType;
     }
 
@@ -119,28 +121,12 @@ public class UserDTO {
         this.baseSalary = baseSalary;
     }
 
-    public String getDepartment() {
-        return department;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
     public Integer getDepartmentId() {
         return departmentId;
     }
 
     public void setDepartmentId(Integer departmentId) {
         this.departmentId = departmentId;
-    }
-
-    public String getPosition() {
-        return position;
-    }
-
-    public void setPosition(String position) {
-        this.position = position;
     }
 
     public Integer getPositionId() {

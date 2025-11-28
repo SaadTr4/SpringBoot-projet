@@ -1,0 +1,269 @@
+package fr.springboot.backend.service;
+
+import fr.springboot.backend.dto.RegisterRequest;
+import fr.springboot.backend.dto.UserDTO;
+import fr.springboot.backend.enums.Grade;
+import fr.springboot.backend.enums.Role;
+import fr.springboot.backend.model.Department;
+import fr.springboot.backend.model.Position;
+import fr.springboot.backend.model.User;
+import fr.springboot.backend.repository.DepartmentRepository;
+import fr.springboot.backend.repository.PositionRepository;
+import fr.springboot.backend.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
+
+@Service
+public class UserService {
+
+    private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
+    private final PositionRepository positionRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserService(UserRepository userRepository,
+                       DepartmentRepository departmentRepository,
+                       PositionRepository positionRepository,
+                       @Lazy PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.departmentRepository = departmentRepository;
+        this.positionRepository = positionRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
+
+    // ✅ GÉNÉRATION MATRICULE FORMAT JEE : EMP2F37Q
+    public String generateMatricule() {
+        try {
+            // 1. Récupérer la séquence PostgreSQL
+            Long seq = userRepository.getNextMatriculeSequence();
+
+            // 2. Générer deux lettres aléatoires
+            Random random = new Random();
+            char letter1 = (char) ('A' + random.nextInt(26));
+            char letter2 = (char) ('A' + random.nextInt(26));
+
+            // 3. Générer un nombre aléatoire entre 1 et 99
+            int number = random.nextInt(99) + 1;
+
+            // 4. Assembler : EMP{seq}{lettre1}{nombre}{lettre2}
+            String matricule = String.format("EMP%d%c%02d%c", seq, letter1, number, letter2);
+
+            System.out.println("🏷️ Matricule généré : " + matricule);
+            return matricule;
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur génération matricule : " + e.getMessage());
+            e.printStackTrace();
+            // Fallback
+            return "EMP" + System.currentTimeMillis();
+        }
+    }
+
+    // ✅ CONVERSION User → UserDTO
+    private UserDTO convertToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setMatricule(user.getMatricule());
+        dto.setLastName(user.getLastName());
+        dto.setFirstName(user.getFirstName());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhone());
+        dto.setAddress(user.getAddress());
+
+        if (user.getGrade() != null) {
+            dto.setGrade(user.getGrade().getDisplayName());
+        }
+
+        dto.setRole(user.getRole().name());
+
+        if (user.getContractType() != null) {
+            dto.setContractType(user.getContractType().getDisplayName());
+        }
+
+        dto.setBaseSalary(user.getBaseSalary() != null ? user.getBaseSalary().doubleValue() : null);
+
+        if (user.getDepartment() != null) {
+            dto.setDepartment(user.getDepartment().getName());
+            dto.setDepartmentId(user.getDepartment().getId());
+        }
+
+        if (user.getPosition() != null) {
+            dto.setPosition(user.getPosition().getName());
+            dto.setPositionId(user.getPosition().getId());
+        }
+
+        return dto;
+    }
+
+    // ✅ GET ALL USERS
+    public List<UserDTO> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    // ✅ GET USER BY ID
+    public UserDTO getUserById(Integer id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
+        return convertToDTO(user);
+    }
+
+    // ✅ CREATE USER
+    public UserDTO createUser(RegisterRequest request) {
+        if (userRepository.findByMatricule(request.getMatricule()).isPresent()) {
+            throw new RuntimeException("Le matricule existe déjà");
+        }
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("L'email existe déjà");
+        }
+
+        User user = new User();
+        user.setMatricule(request.getMatricule());
+        user.setLastName(request.getLastName());
+        user.setFirstName(request.getFirstName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
+        user.setGrade(request.getGrade());
+        user.setRole(request.getRole());
+        user.setContractType(request.getContractType());
+
+        if (request.getBaseSalary() != null) {
+            user.setBaseSalary(java.math.BigDecimal.valueOf(request.getBaseSalary()));
+        }
+
+        user.setPassword(passwordEncoder.encode("motdepasse123"));
+
+        if (request.getDepartmentId() != null) {
+            Department department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Département non trouvé"));
+            user.setDepartment(department);
+        }
+
+        if (request.getPositionId() != null) {
+            Position position = positionRepository.findById(request.getPositionId())
+                    .orElseThrow(() -> new RuntimeException("Poste non trouvé"));
+            user.setPosition(position);
+        }
+
+        User savedUser = userRepository.save(user);
+        return convertToDTO(savedUser);
+    }
+
+    // ✅ UPDATE USER
+    public UserDTO updateUser(Integer id, RegisterRequest request) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        if (request.getMatricule() != null && !request.getMatricule().equals(user.getMatricule())) {
+            if (userRepository.findByMatricule(request.getMatricule()).isPresent()) {
+                throw new RuntimeException("Le matricule existe déjà");
+            }
+            user.setMatricule(request.getMatricule());
+        }
+
+        if (request.getEmail() != null && !request.getEmail().equals(user.getEmail())) {
+            if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+                throw new RuntimeException("L'email existe déjà");
+            }
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getLastName() != null) user.setLastName(request.getLastName());
+        if (request.getFirstName() != null) user.setFirstName(request.getFirstName());
+        if (request.getPhone() != null) user.setPhone(request.getPhone());
+        if (request.getAddress() != null) user.setAddress(request.getAddress());
+        if (request.getGrade() != null) user.setGrade(request.getGrade());
+        if (request.getRole() != null) user.setRole(request.getRole());
+        if (request.getContractType() != null) user.setContractType(request.getContractType());
+
+        if (request.getBaseSalary() != null) {
+            user.setBaseSalary(java.math.BigDecimal.valueOf(request.getBaseSalary()));
+        }
+
+        if (request.getDepartmentId() != null) {
+            Department department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Département non trouvé"));
+            user.setDepartment(department);
+        }
+
+        if (request.getPositionId() != null) {
+            Position position = positionRepository.findById(request.getPositionId())
+                    .orElseThrow(() -> new RuntimeException("Poste non trouvé"));
+            user.setPosition(position);
+        }
+
+        User updatedUser = userRepository.save(user);
+        return convertToDTO(updatedUser);
+    }
+
+    // ✅ DELETE USER
+    public void deleteUser(Integer id) {
+        if (!userRepository.existsById(id)) {
+            throw new RuntimeException("Utilisateur non trouvé");
+        }
+        userRepository.deleteById(id);
+    }
+
+    // ✅ RECHERCHE MULTICRITÈRE
+    public List<UserDTO> searchUsers(Integer departmentId, Integer positionId,
+                                     String roleStr, String gradeStr, String searchText) {
+        List<User> users = userRepository.findAll();
+
+        if (departmentId != null) {
+            users = users.stream()
+                    .filter(u -> u.getDepartment() != null && u.getDepartment().getId().equals(departmentId))
+                    .collect(Collectors.toList());
+        }
+
+        if (positionId != null) {
+            users = users.stream()
+                    .filter(u -> u.getPosition() != null && u.getPosition().getId().equals(positionId))
+                    .collect(Collectors.toList());
+        }
+
+        if (roleStr != null && !roleStr.isBlank()) {
+            try {
+                Role role = Role.valueOf(roleStr);
+                users = users.stream()
+                        .filter(u -> u.getRole() == role)
+                        .collect(Collectors.toList());
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        if (gradeStr != null && !gradeStr.isBlank()) {
+            try {
+                Grade grade = Grade.valueOf(gradeStr);
+                users = users.stream()
+                        .filter(u -> u.getGrade() == grade)
+                        .collect(Collectors.toList());
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+        if (searchText != null && !searchText.isBlank()) {
+            String search = searchText.toLowerCase();
+            users = users.stream()
+                    .filter(u ->
+                            u.getFirstName().toLowerCase().contains(search) ||
+                                    u.getLastName().toLowerCase().contains(search) ||
+                                    u.getMatricule().toLowerCase().contains(search)
+                    )
+                    .collect(Collectors.toList());
+        }
+
+        return users.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+}

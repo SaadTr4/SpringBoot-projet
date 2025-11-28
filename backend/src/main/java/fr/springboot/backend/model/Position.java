@@ -1,45 +1,31 @@
 package fr.springboot.backend.model;
 
 import jakarta.persistence.*;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "position")
-public class Position implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Position {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(name = "description", columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<User> users = new HashSet<>();
-
-    // ==============================
-    // Constructors
-    // ==============================
-
+    // Constructeurs
     public Position() {}
 
-    public Position(String name, String description) {
+    public Position(Integer id, String name, String description) {
+        this.id = id;
         this.name = name;
         this.description = description;
     }
 
-    // ==============================
-    // Getters & Setters
-    // ==============================
-
+    // Getters et Setters
     public Integer getId() {
         return id;
     }
@@ -62,39 +48,5 @@ public class Position implements Serializable {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public Set<User> getUsers() {
-        return users;
-    }
-
-    public void setUsers(Set<User> users) {
-        this.users = users;
-    }
-
-    // ==============================
-    // Utility Methods
-    // ==============================
-
-    @Override
-    public String toString() {
-        return "Position [\n" +
-                "               id  = " + id + ",\n" +
-                "             name  = " + name + ",\n" +
-                "      description  = " + description + "\n" +
-                ']';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Position)) return false;
-        Position that = (Position) o;
-        return id != null && id.equals(that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
     }
 }
