@@ -1,0 +1,51 @@
+/* ======== RESET DU LAYOUT ======== */
+:host {
+  display: block;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ======== FOND GLOBAL ======== */
+.bg {
+  position: fixed;
+  inset: 0;
+  background: url('/assets/images/background.jpg') center/cover no-repeat;
+  filter: blur(4px);
+  z-index: -1;
+}
+
+/* ======== LAYOUT PRINCIPAL ======== */
+.layout {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+/* ======== SIDEBAR ======== */
+.sidebar-wrapper {
+  width: 260px;
+  flex-shrink: 0;
+}
+
+/* ======== CONTENU ======== */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* ======== LOGIN — CENTRAGE PARFAIT ======== */
+.login-container {
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Empêche que le contenu descende trop */
+.page-wrapper {
+  margin-top: 30px;
+}

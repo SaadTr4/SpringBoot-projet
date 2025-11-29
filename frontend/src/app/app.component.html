@@ -1,0 +1,23 @@
+<!-- SI PAGE LOGIN -->
+<div *ngIf="isLoginPage()" class="login-container">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- SINON : DASHBOARD + TOUTES LES AUTRES PAGES -->
+<div *ngIf="!isLoginPage()" class="layout">
+
+  <!-- Sidebar -->
+  <div class="sidebar-wrapper">
+    <app-sidebar></app-sidebar>
+  </div>
+
+  <!-- Header + contenu -->
+  <div class="main-wrapper">
+    <app-header></app-header>
+
+    <div class="page-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+
+</div>

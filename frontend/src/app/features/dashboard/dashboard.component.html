@@ -1,0 +1,64 @@
+<div class="page">
+
+  <div class="dashboard-container">
+
+    <!-- Bienvenue -->
+    <div class="welcome-card">
+      <div class="welcome-left">
+        <div>
+          <h2 class="welcome-title">Bienvenue, Admin</h2>
+          <p class="welcome-sub">Voici le résumé de l’activité de votre entreprise</p>
+        </div>
+      </div>
+
+      <button class="welcome-logout">Se déconnecter</button>
+    </div>
+
+    <!-- STATISTIQUES -->
+    <div class="stats">
+      <div class="stat-card">
+        <h5>Employés</h5>
+        <h2>120</h2>
+      </div>
+
+      <div class="stat-card">
+        <h5>Projets</h5>
+        <h2>15</h2>
+      </div>
+
+      <div class="stat-card">
+        <h5>Départements</h5>
+        <h2>6</h2>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-row">
+
+      <div class="chart-card">
+        <h4 class="chart-title">Employés par rôle</h4>
+        <div class="chart-wrap">
+          <canvas id="rolesChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h4 class="chart-title">Répartition par département</h4>
+        <div class="chart-wrap">
+          <canvas id="departmentsChart"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h4 class="chart-title">Statut des projets</h4>
+        <div class="chart-wrap">
+          <canvas id="projectsStatusChart"></canvas>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="footer">© 2025 - Application JEE Gestion RH</footer>
+
+  </div>
+</div>

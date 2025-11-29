@@ -1,0 +1,46 @@
+<div class="page-wrapper">
+
+  <!-- Carte de titre -->
+  <div class="glass-card welcome-card">
+    <div class="welcome-left">
+      <div>
+        <h2 class="welcome-title">Liste des départements</h2>
+        <p class="welcome-sub">Connecté en tant que {{ username }}</p>
+      </div>
+    </div>
+
+    <button class="welcome-logout" (click)="openAddModal()">
+      + Ajouter
+    </button>
+  </div>
+
+  <!-- Tableau des départements -->
+  <div class="glass-card table-card">
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom du département</th>
+        <th>Chef</th>
+        <th>Employés</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let d of departments">
+        <td>{{ d.id }}</td>
+        <td>{{ d.nom }}</td>
+        <td>{{ d.chef }}</td>
+        <td>{{ d.nbEmployes }}</td>
+        <td class="actions">
+          <button class="btn-action">Modifier</button>
+          <button class="btn-action">Membres</button>
+          <button class="btn-delete">Supprimer</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

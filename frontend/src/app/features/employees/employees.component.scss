@@ -1,0 +1,124 @@
+.page-wrapper {
+  padding: 20px;
+  color: white;
+}
+
+/* ======= Cards glass ======= */
+.glass-card {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 16px;
+  backdrop-filter: blur(14px);
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* ===== Header interne ===== */
+.welcome-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.welcome-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.welcome-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.welcome-sub {
+  margin: 3px 0 0;
+  color: #e5e7eb;
+}
+
+/* ===== Boutons ===== */
+.welcome-logout,
+.btn-action,
+.btn-delete {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.welcome-logout,
+.btn-action {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+}
+
+.btn-delete {
+  background: #ef4444;
+}
+
+/* ===== Tableau ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 0.9rem;
+  color: #e0e7ff;
+}
+
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== Modal ===== */
+.modal-layer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 500;
+}
+
+.modal-layer.open {
+  display: flex;
+}
+
+.modal-box {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 20px;
+  border-radius: 16px;
+  width: 400px;
+  backdrop-filter: blur(12px);
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
