@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 @Service
 public class UserService {
@@ -219,7 +220,7 @@ public class UserService {
         if (request.getContractType() != null) user.setContractType(request.getContractType());
 
         if (request.getBaseSalary() != null) {
-            user.setBaseSalary(java.math.BigDecimal.valueOf(request.getBaseSalary()));
+            user.setBaseSalary(BigDecimal.valueOf(request.getBaseSalary()));
         }
 
         if (request.getDepartmentId() != null) {
