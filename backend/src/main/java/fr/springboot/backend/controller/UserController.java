@@ -92,27 +92,7 @@ public class UserController {
         }
     }
 
-    // ========== 3. GÉNÉRER UN NOUVEAU MATRICULE ==========
 
-    @GetMapping("/generate-matricule")
-    public ResponseEntity<?> generateMatricule(HttpSession session) {
-        try {
-            User currentUser = getCurrentUser(session);
-            RolePermissions permissions = new RolePermissions(currentUser);
-
-            if (!permissions.canCreateUser()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("générer un matricule")));
-            }
-
-            String matricule = userService.generateMatricule();
-            return ResponseEntity.ok(Map.of("matricule", matricule));
-
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la génération du matricule", "message", e.getMessage()));
-        }
-    }
 
     // ========== 4. CRÉER UN UTILISATEUR ==========
 

@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -119,55 +120,77 @@ public class UserService {
     }
 
     // CREATE USER
+    // CREATE USER
     public UserDTO createUser(RegisterRequest request) {
-    //  GÉNÉRER AUTOMATIQUEMENT LE MATRICULE (ne pas utiliser celui de la requête)
-    String matricule = generateMatricule();
-    
-    // Vérifier si l'email existe déjà
-    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-        throw new RuntimeException("L'email existe déjà");
+
+        //  VALIDATION MANUELLE POUR CREATE (champs obligatoires)
+        if (request.getLastName() == null || request.getLastName().isBlank()) {
+            throw new RuntimeException("Le nom est obligatoire");
+        }
+        if (request.getFirstName() == null || request.getFirstName().isBlank()) {
+            throw new RuntimeException("Le prénom est obligatoire");
+        }
+        if (request.getEmail() == null || request.getEmail().isBlank()) {
+            throw new RuntimeException("L'email est obligatoire");
+        }
+        if (request.getRole() == null) {
+            throw new RuntimeException("Le rôle est obligatoire");
+        }
+        if (request.getGrade() == null) {
+            throw new RuntimeException("Le grade est obligatoire");
+        }
+        if (request.getContractType() == null) {
+            throw new RuntimeException("Le type de contrat est obligatoire");
+        }
+
+        //  GÉNÉRER AUTOMATIQUEMENT LE MATRICULE
+        String matricule = generateMatricule();
+
+        // Vérifier si l'email existe déjà
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("L'email existe déjà");
+        }
+
+        // Créer le nouvel utilisateur
+        User user = new User();
+        user.setMatricule(matricule);
+        user.setLastName(request.getLastName());
+        user.setFirstName(request.getFirstName());
+        user.setEmail(request.getEmail());
+        user.setPhone(request.getPhone());
+        user.setAddress(request.getAddress());
+        user.setGrade(request.getGrade());
+        user.setRole(request.getRole());
+        user.setContractType(request.getContractType());
+
+        if (request.getBaseSalary() != null) {
+            user.setBaseSalary(BigDecimal.valueOf(request.getBaseSalary()));
+        }
+
+        // Mot de passe par défaut
+        user.setPassword(passwordEncoder.encode("motdepasse123"));
+
+        // Assigner le département
+        if (request.getDepartmentId() != null) {
+            Department department = departmentRepository.findById(request.getDepartmentId())
+                    .orElseThrow(() -> new RuntimeException("Département non trouvé"));
+            user.setDepartment(department);
+        }
+
+        // Assigner la position
+        if (request.getPositionId() != null) {
+            Position position = positionRepository.findById(request.getPositionId())
+                    .orElseThrow(() -> new RuntimeException("Poste non trouvé"));
+            user.setPosition(position);
+        }
+
+        // Sauvegarder l'utilisateur
+        User savedUser = userRepository.save(user);
+
+        System.out.println(" Utilisateur créé avec matricule auto-généré : " + matricule);
+
+        return convertToDTO(savedUser);
     }
-    
-    // Créer le nouvel utilisateur
-    User user = new User();
-    user.setMatricule(matricule);  //  Matricule auto-généré
-    user.setLastName(request.getLastName());
-    user.setFirstName(request.getFirstName());
-    user.setEmail(request.getEmail());
-    user.setPhone(request.getPhone());
-    user.setAddress(request.getAddress());
-    user.setGrade(request.getGrade());
-    user.setRole(request.getRole());
-    user.setContractType(request.getContractType());
-    
-    if (request.getBaseSalary() != null) {
-        user.setBaseSalary(BigDecimal.valueOf(request.getBaseSalary()));
-    }
-    
-    // Mot de passe par défaut
-    user.setPassword(passwordEncoder.encode("motdepasse123"));
-    
-    // Assigner le département
-    if (request.getDepartmentId() != null) {
-        Department department = departmentRepository.findById(request.getDepartmentId())
-                .orElseThrow(() -> new RuntimeException("Département non trouvé"));
-        user.setDepartment(department);
-    }
-    
-    // Assigner la position
-    if (request.getPositionId() != null) {
-        Position position = positionRepository.findById(request.getPositionId())
-                .orElseThrow(() -> new RuntimeException("Poste non trouvé"));
-        user.setPosition(position);
-    }
-    
-    // Sauvegarder l'utilisateur
-    User savedUser = userRepository.save(user);
-    
-    System.out.println(" Utilisateur créé avec matricule auto-généré : " + matricule);
-    
-    return convertToDTO(savedUser);
-}
     //  UPDATE USER
     public UserDTO updateUser(Integer id, RegisterRequest request) {
         User user = userRepository.findById(id)
