@@ -38,7 +38,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // ✅ GÉNÉRATION MATRICULE FORMAT JEE : EMP2F37Q
+    //  GÉNÉRATION MATRICULE FORMAT JEE : EMP2F37Q
     public String generateMatricule() {
         try {
             // 1. Récupérer la séquence PostgreSQL
@@ -55,18 +55,18 @@ public class UserService {
             // 4. Assembler : EMP{seq}{lettre1}{nombre}{lettre2}
             String matricule = String.format("EMP%d%c%02d%c", seq, letter1, number, letter2);
 
-            System.out.println("🏷️ Matricule généré : " + matricule);
+            System.out.println(" Matricule généré : " + matricule);
             return matricule;
 
         } catch (Exception e) {
-            System.err.println("❌ Erreur génération matricule : " + e.getMessage());
+            System.err.println("Erreur génération matricule : " + e.getMessage());
             e.printStackTrace();
             // Fallback
             return "EMP" + System.currentTimeMillis();
         }
     }
 
-    // ✅ CONVERSION User → UserDTO
+    //  CONVERSION User → UserDTO
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
@@ -103,7 +103,7 @@ public class UserService {
         return dto;
     }
 
-    // ✅ GET ALL USERS
+    //  GET ALL USERS
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -111,57 +111,64 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ GET USER BY ID
+    //  GET USER BY ID
     public UserDTO getUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
         return convertToDTO(user);
     }
 
-    // ✅ CREATE USER
+    // CREATE USER
     public UserDTO createUser(RegisterRequest request) {
-        if (userRepository.findByMatricule(request.getMatricule()).isPresent()) {
-            throw new RuntimeException("Le matricule existe déjà");
-        }
-
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("L'email existe déjà");
-        }
-
-        User user = new User();
-        user.setMatricule(request.getMatricule());
-        user.setLastName(request.getLastName());
-        user.setFirstName(request.getFirstName());
-        user.setEmail(request.getEmail());
-        user.setPhone(request.getPhone());
-        user.setAddress(request.getAddress());
-        user.setGrade(request.getGrade());
-        user.setRole(request.getRole());
-        user.setContractType(request.getContractType());
-
-        if (request.getBaseSalary() != null) {
-            user.setBaseSalary(java.math.BigDecimal.valueOf(request.getBaseSalary()));
-        }
-
-        user.setPassword(passwordEncoder.encode("motdepasse123"));
-
-        if (request.getDepartmentId() != null) {
-            Department department = departmentRepository.findById(request.getDepartmentId())
-                    .orElseThrow(() -> new RuntimeException("Département non trouvé"));
-            user.setDepartment(department);
-        }
-
-        if (request.getPositionId() != null) {
-            Position position = positionRepository.findById(request.getPositionId())
-                    .orElseThrow(() -> new RuntimeException("Poste non trouvé"));
-            user.setPosition(position);
-        }
-
-        User savedUser = userRepository.save(user);
-        return convertToDTO(savedUser);
+    //  GÉNÉRER AUTOMATIQUEMENT LE MATRICULE (ne pas utiliser celui de la requête)
+    String matricule = generateMatricule();
+    
+    // Vérifier si l'email existe déjà
+    if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+        throw new RuntimeException("L'email existe déjà");
     }
-
-    // ✅ UPDATE USER
+    
+    // Créer le nouvel utilisateur
+    User user = new User();
+    user.setMatricule(matricule);  //  Matricule auto-généré
+    user.setLastName(request.getLastName());
+    user.setFirstName(request.getFirstName());
+    user.setEmail(request.getEmail());
+    user.setPhone(request.getPhone());
+    user.setAddress(request.getAddress());
+    user.setGrade(request.getGrade());
+    user.setRole(request.getRole());
+    user.setContractType(request.getContractType());
+    
+    if (request.getBaseSalary() != null) {
+        user.setBaseSalary(BigDecimal.valueOf(request.getBaseSalary()));
+    }
+    
+    // Mot de passe par défaut
+    user.setPassword(passwordEncoder.encode("motdepasse123"));
+    
+    // Assigner le département
+    if (request.getDepartmentId() != null) {
+        Department department = departmentRepository.findById(request.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Département non trouvé"));
+        user.setDepartment(department);
+    }
+    
+    // Assigner la position
+    if (request.getPositionId() != null) {
+        Position position = positionRepository.findById(request.getPositionId())
+                .orElseThrow(() -> new RuntimeException("Poste non trouvé"));
+        user.setPosition(position);
+    }
+    
+    // Sauvegarder l'utilisateur
+    User savedUser = userRepository.save(user);
+    
+    System.out.println(" Utilisateur créé avec matricule auto-généré : " + matricule);
+    
+    return convertToDTO(savedUser);
+}
+    //  UPDATE USER
     public UserDTO updateUser(Integer id, RegisterRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -208,7 +215,7 @@ public class UserService {
         return convertToDTO(updatedUser);
     }
 
-    // ✅ DELETE USER
+    // DELETE USER
     public void deleteUser(Integer id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("Utilisateur non trouvé");
@@ -216,7 +223,7 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    // ✅ RECHERCHE MULTICRITÈRE
+    //  RECHERCHE MULTICRITÈRE
     public List<UserDTO> searchUsers(Integer departmentId, Integer positionId,
                                      String roleStr, String gradeStr, String searchText) {
         List<User> users = userRepository.findAll();
