@@ -1,5 +1,9 @@
 package fr.springboot.backend.enums;
 
+/**
+ * Enumeration representing possible actions in the system.
+ * Used for role-based permission management.
+ */
 public enum Action {
 
     // Project Actions
@@ -32,7 +36,6 @@ public enum Action {
     FILTER_DEPARTMENT,
 
     // Position Actions
-
     READ_POSITION,
     CREATE_POSITION,
     UPDATE_POSITION,
@@ -40,4 +43,3 @@ public enum Action {
     FILTER_POSITION,
 
 }
-

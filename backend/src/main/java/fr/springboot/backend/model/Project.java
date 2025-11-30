@@ -7,6 +7,10 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Entity class representing a project in the organization.
+ * Maps to the "project" table in the database.
+ */
 @Entity
 @Table(name = "project")
 public class Project implements Serializable {
@@ -17,36 +21,83 @@ public class Project implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Integer id;
+
+    /**
+     * Project name
+     */
     @Column(name = "name", length = 100, nullable = false)
     private String name;
+
+    /**
+     * Project description
+     */
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
+
+    /**
+     * Project status
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
     private Status status;
+
+    /**
+     * Project manager responsible for the project
+     */
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_manager_id")
     private User projectManager;
 
+    /**
+     * Users assigned to this project
+     */
     @ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
 
     // ==============================
     // Constructors
     // ==============================
+
+    /**
+     * Default constructor
+     */
     public Project() {
         this.status = Status.IN_PROGRESS; // Default status
     }
+
+    /**
+     * Constructor with name and description
+     *
+     * @param name Project name
+     * @param description Project description
+     */
     public Project(String name, String description) {
         this.name = name;
         this.description = description;
         this.status = Status.IN_PROGRESS; // Default status
     }
+
+    /**
+     * Constructor with name, project manager and status
+     *
+     * @param name Project name
+     * @param projectManager Project manager
+     * @param status Project status
+     */
     public Project(String name, User projectManager, Status status) {
         this.name = name;
         this.projectManager = projectManager;
         this.status = status;
     }
+
+    /**
+     * Constructor with all parameters
+     *
+     * @param name Project name
+     * @param projectManager Project manager
+     * @param description Project description
+     * @param status Project status
+     */
     public Project(String name, User projectManager, String description, Status status) {
         this.name = name;
         this.projectManager = projectManager;
@@ -54,10 +105,10 @@ public class Project implements Serializable {
         this.status = status;
     }
 
-
     // ========================================
     // GETTERS / SETTERS
     // ========================================
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getName() { return name; }
@@ -98,5 +149,4 @@ public class Project implements Serializable {
     public int hashCode() {
         return getClass().hashCode();
     }
-
 }

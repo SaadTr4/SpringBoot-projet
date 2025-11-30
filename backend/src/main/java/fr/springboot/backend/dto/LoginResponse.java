@@ -1,5 +1,9 @@
 package fr.springboot.backend.dto;
 
+/**
+ * DTO for login response containing user authentication details.
+ * Returned to frontend after successful login.
+ */
 public class LoginResponse {
     private String token;
     private String type;
@@ -9,14 +13,25 @@ public class LoginResponse {
     private String role;
     private String department;
 
-    //  CONSTRUCTEUR VIDE (OBLIGATOIRE)
+    /**
+     * Default constructor (required)
+     */
     public LoginResponse() {
     }
 
-    //  CONSTRUCTEUR AVEC TOUS LES PARAMÈTRES
+    /**
+     * Constructor with all parameters
+     *
+     * @param token the session token
+     * @param matricule the registration number
+     * @param fullName the user's full name
+     * @param email the user's email
+     * @param role the user's role
+     * @param department the user's department
+     */
     public LoginResponse(String token, String matricule, String fullName, String email, String role, String department) {
         this.token = token;
-        this.type = "Session";  // Par défaut
+        this.type = "Session";  // Default value
         this.matricule = matricule;
         this.fullName = fullName;
         this.email = email;
@@ -24,7 +39,8 @@ public class LoginResponse {
         this.department = department;
     }
 
-    // ✅ GETTERS ET SETTERS
+    // GETTERS AND SETTERS
+
     public String getToken() {
         return token;
     }

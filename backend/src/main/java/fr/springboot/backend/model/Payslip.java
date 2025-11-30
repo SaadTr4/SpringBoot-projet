@@ -10,21 +10,26 @@ import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-
+/**
+ * Entity class representing a payslip for an employee.
+ * Maps to the "payslip" table in the database.
+ */
 @Entity
 @Table(name = "payslip")
 public class Payslip implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     Integer id;
+
     @Column(name = "generation_date", nullable = false)
     private LocalDate generationDate;
 
     @Column(name = "month", nullable = false)
-    private Integer month; // 1 = janvier, 12 = décembre
+    private Integer month; // 1 = January, 12 = December
 
     @Column(name = "year", nullable = false)
     private Integer year;
@@ -51,7 +56,21 @@ public class Payslip implements Serializable {
     // ===============================
     // Constructors
     // ===============================
+
+    /**
+     * Default constructor
+     */
     public Payslip() {}
+
+    /**
+     * Constructor with parameters
+     *
+     * @param year The year of the payslip
+     * @param month The month of the payslip (1-12)
+     * @param bonuses Bonus amount
+     * @param custom_deductions Custom deductions amount
+     * @param user The user associated with this payslip
+     */
     public Payslip(Integer year, Integer month, BigDecimal bonuses, BigDecimal custom_deductions, User user) {
         this.year = year;
         this.month = month;
@@ -67,6 +86,7 @@ public class Payslip implements Serializable {
     // ===============================
     // Getters & Setters
     // ===============================
+
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -79,9 +99,28 @@ public class Payslip implements Serializable {
 
     public BigDecimal getBaseSalary() { return baseSalary; }
     public void setBaseSalary(BigDecimal baseSalary) { this.baseSalary = baseSalary; }
+
+    /**
+     * Calculates social contributions (13.5% of base salary)
+     *
+     * @return Social contributions amount
+     */
     public BigDecimal getSocialContributions() { return baseSalary.multiply(new BigDecimal("0.135")); }
+
+    /**
+     * Calculates CSG/CRDS amount (9.7% of base salary)
+     *
+     * @return CSG/CRDS amount
+     */
     public BigDecimal getCsgCrdsAmount() { return baseSalary.multiply(new BigDecimal("0.097")); }
+
+    /**
+     * Calculates gross pay (base salary + bonuses)
+     *
+     * @return Gross pay amount
+     */
     public BigDecimal getGrossPay() { return baseSalary.add(bonuses != null ? bonuses : BigDecimal.ZERO); }
+
     public BigDecimal getBonuses() { return bonuses; }
     public void setBonuses(BigDecimal bonuses) { this.bonuses = bonuses; }
     public BigDecimal getDeductions() { return deductions; }
@@ -95,7 +134,9 @@ public class Payslip implements Serializable {
     public void setUser(User user) { this.user = user; }
 
     /**
-     * Formate la date de génération
+     * Formats the generation date as string
+     *
+     * @return Formatted generation date
      */
     public String getFormattedGenerationDate() {
         return formatDate(this.generationDate);
@@ -105,6 +146,9 @@ public class Payslip implements Serializable {
     // Utility Methods
     // ==============================
 
+    /**
+     * Calculates total deductions
+     */
     public void calculateDeductions() {
         // social contributions + custom deductions + csg/crds
         this.deductions = getSocialContributions()
@@ -112,6 +156,10 @@ public class Payslip implements Serializable {
                 .add(getCsgCrdsAmount())
         ;
     }
+
+    /**
+     * Calculates net pay
+     */
     public void calculateNetPay() {
         this.netPay = baseSalary
                 .add(bonuses != null ? bonuses : BigDecimal.ZERO)
@@ -119,13 +167,23 @@ public class Payslip implements Serializable {
     }
 
     /**
-     * Formate la date de génération en "dd/MM/yyyy"
+     * Formats a date as "dd/MM/yyyy"
+     *
+     * @param date The date to format
+     * @return Formatted date string
      */
     public String formatDate(LocalDate date) {
         if (date == null) return "";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return date.format(formatter);
     }
+
+    /**
+     * Formats currency amount in French format
+     *
+     * @param amount The amount to format
+     * @return Formatted currency string
+     */
     public String getFormattedCurrency(BigDecimal amount) {
         if (amount == null) return "0,00";
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(java.util.Locale.FRANCE);
@@ -136,7 +194,9 @@ public class Payslip implements Serializable {
     }
 
     /**
-     * Retourne le nom du mois en français
+     * Returns the month name in French
+     *
+     * @return Month name in French
      */
     public String getMonthName() {
         if (this.month == null || this.month < 1 || this.month > 12) return "";
@@ -144,6 +204,12 @@ public class Payslip implements Serializable {
                 "Juillet","Août","Septembre","Octobre","Novembre","Décembre"};
         return months[this.month - 1];
     }
+
+    /**
+     * Adds a bonus amount
+     *
+     * @param amount Bonus amount to add
+     */
     public void addBonus(BigDecimal amount) {
         if (amount != null) {
             this.bonuses = this.bonuses.add(amount);
@@ -151,11 +217,19 @@ public class Payslip implements Serializable {
         }
     }
 
-    // Delete bonus (reset to zero)
+    /**
+     * Resets bonus to zero
+     */
     public void clearBonus() {
         this.bonuses = BigDecimal.ZERO;
         calculateNetPay();
     }
+
+    /**
+     * Adds a deduction amount
+     *
+     * @param amount Deduction amount to add
+     */
     public void addDeduction(BigDecimal amount) {
         if (amount != null) {
             this.deductions = this.deductions.add(amount);
@@ -163,20 +237,25 @@ public class Payslip implements Serializable {
         }
     }
 
-    // Delete deduction (reset to zero)
+    /**
+     * Resets deductions to zero
+     */
     public void clearDeduction() {
         this.deductions = BigDecimal.ZERO;
         calculateNetPay();
     }
 
-    // Update base salary
+    /**
+     * Updates base salary
+     *
+     * @param amount New base salary amount
+     */
     public void updateBaseSalary(BigDecimal amount) {
         if (amount != null) {
             this.baseSalary = amount;
             calculateNetPay();
         }
     }
-
 
     @Override
     public String toString() {

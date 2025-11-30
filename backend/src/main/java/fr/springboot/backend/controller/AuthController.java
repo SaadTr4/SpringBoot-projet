@@ -22,6 +22,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Authentication controller for handling user login, logout and session management
+ */
 @RestController
 @RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
@@ -36,23 +39,30 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Handles user login authentication
+     *
+     * @param request Login request containing credentials
+     * @param session HTTP session
+     * @return ResponseEntity with login response or error
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request, HttpSession session) {
         try {
             System.out.println(" Tentative de login pour: " + request.getMatricule());
 
-            // Trouver l'utilisateur
+            // Find user by matricule
             User user = userRepository.findByMatricule(request.getMatricule())
                     .orElseThrow(() -> new RuntimeException("Matricule ou mot de passe incorrect"));
 
-            // Vérifier le mot de passe
+            // Verify password
             if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 System.out.println(" Mot de passe incorrect");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Matricule ou mot de passe incorrect"));
             }
 
-            //  AUTHENTIFIER DANS SPRING SECURITY
+            // Authenticate in Spring Security
             Authentication authentication = new UsernamePasswordAuthenticationToken(
                     user.getMatricule(),
                     null,
@@ -62,7 +72,7 @@ public class AuthController {
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
 
-            //  SAUVEGARDER DANS LA SESSION
+            // Save in session
             session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
             session.setAttribute("userId", user.getId());
             session.setAttribute("matricule", user.getMatricule());
@@ -74,7 +84,7 @@ public class AuthController {
             System.out.println("   - Matricule: " + user.getMatricule());
             System.out.println("   - Rôle: " + user.getRole());
 
-            // Créer la réponse
+            // Create response
             LoginResponse response = new LoginResponse();
             response.setToken(session.getId());
             response.setType("Session");
@@ -93,6 +103,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * Handles user logout by clearing security context and invalidating session
+     *
+     * @param session HTTP session to invalidate
+     * @return ResponseEntity with logout confirmation message
+     */
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpSession session) {
         System.out.println(" Logout - Session ID: " + session.getId());
@@ -101,6 +117,12 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
     }
 
+    /**
+     * Checks if the current session is valid and authenticated
+     *
+     * @param session HTTP session to check
+     * @return ResponseEntity with session information or unauthorized status
+     */
     @GetMapping("/check")
     public ResponseEntity<?> checkSession(HttpSession session) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
