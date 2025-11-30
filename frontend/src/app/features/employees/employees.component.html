@@ -65,8 +65,11 @@
       <input class="input" placeholder="Projet" />
       <input class="input" type="number" placeholder="Salaire (€)" />
 
-      <button class="welcome-logout" style="margin-top:10px;">Enregistrer</button>
-      <button type="button" class="btn-delete" style="margin-top:10px;" (click)="closeModal()">Annuler</button>
+      <div class="button-container">
+        <button class="welcome-logout" type="submit">Enregistrer</button>
+        <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+      </div>
     </form>
   </div>
 </div>
+

@@ -12,6 +12,8 @@ export class DepartmentsComponent {
 
   username = "Admin";
 
+  modalOpen = false;
+
   departments = [
     { id: 1, nom: "Ressources Humaines", chef: "Sophie Martin", nbEmployes: 12 },
     { id: 2, nom: "Informatique", chef: "Karim El Yazidi", nbEmployes: 35 },
@@ -19,8 +21,13 @@ export class DepartmentsComponent {
     { id: 4, nom: "Production", chef: "Lucas Bernard", nbEmployes: 25 }
   ];
 
-  openAddModal() {
-    alert("Ajout futur ici");
-  }
 
-}
+
+  openAddModal() {
+      this.modalOpen = true;
+    }
+
+    closeModal() {
+      this.modalOpen = false;
+    }
+  }

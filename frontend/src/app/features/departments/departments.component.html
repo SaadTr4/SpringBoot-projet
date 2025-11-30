@@ -9,9 +9,7 @@
       </div>
     </div>
 
-    <button class="welcome-logout" (click)="openAddModal()">
-      + Ajouter
-    </button>
+    <button class="welcome-logout" (click)="openAddModal()">+ Ajouter</button>
   </div>
 
   <!-- Tableau des départements -->
@@ -26,7 +24,6 @@
         <th>Actions</th>
       </tr>
       </thead>
-
       <tbody>
       <tr *ngFor="let d of departments">
         <td>{{ d.id }}</td>
@@ -41,6 +38,24 @@
       </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Modal d'ajout -->
+  <div class="modal-layer" [class.open]="modalOpen">
+    <div class="modal-box">
+      <h3>Ajouter un département</h3>
+
+      <form>
+        <input class="input" placeholder="Nom du département" />
+        <input class="input" placeholder="Chef" />
+        <input class="input" placeholder="Nombre d'employés" />
+
+        <div class="button-container">
+          <button class="welcome-logout" type="submit">Enregistrer</button>
+          <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+        </div>
+      </form>
+    </div>
   </div>
 
 </div>

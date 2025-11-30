@@ -86,9 +86,9 @@ tr:hover {
   inset: 0;
   background: rgba(0, 0, 0, 0.55);
   display: none;
-  align-items: center;
   justify-content: center;
-  z-index: 300;
+  align-items: center;
+  z-index: 500;
 }
 
 .modal-layer.open {
@@ -101,14 +101,59 @@ tr:hover {
   border-radius: 16px;
   width: 400px;
   backdrop-filter: blur(12px);
+  color: #fff;
 }
 
+/* ===== Button Container ===== */
+.button-container {
+  display: flex;
+  gap: 15px; /* Space between the buttons */
+  margin-top: 20px; /* Space from the input fields */
+  justify-content: flex-end; /* Align buttons to the right */
+}
+
+/* ===== Button Styles ===== */
+.welcome-logout,
+.btn-action,
+.btn-delete {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.welcome-logout,
+.btn-action {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+}
+
+.welcome-logout:hover,
+.btn-action:hover {
+  filter: brightness(1.1);
+}
+
+.btn-delete {
+  background: #ef4444;
+}
+
+.btn-delete:hover {
+  filter: brightness(1.1);
+}
+
+/* ===== Input Styles ===== */
 .input {
   width: 100%;
+  max-width: 95%;
   padding: 12px;
   margin-top: 10px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
   border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
   color: white;
 }
+

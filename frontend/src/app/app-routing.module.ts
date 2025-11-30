@@ -6,6 +6,7 @@ import { DepartmentsComponent } from './features/departments/departments.compone
 import { ProjectsComponent } from './features/projects/projects.component';
 import { PayslipsComponent } from './features/payslips/payslips.component';
 import { LoginComponent } from './features/login/login.component';
+import { PositionsComponent } from './features/positions/positions.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -14,6 +15,7 @@ export const routes: Routes = [
   { path: 'employees', component: EmployeesComponent },
   { path: 'departments', component: DepartmentsComponent },
   { path: 'projects', component: ProjectsComponent },
-  { path: 'payslips', component: PayslipsComponent }
+  { path: 'payslips', component: PayslipsComponent },
+  { path: 'positions', component: PositionsComponent }
 ];
 
