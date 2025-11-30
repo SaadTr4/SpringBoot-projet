@@ -1,6 +1,5 @@
 <div class="page-wrapper">
 
-  <!-- Header interne -->
   <div class="glass-card welcome-card">
     <div class="welcome-left">
       <div>
@@ -8,57 +7,74 @@
         <p class="welcome-sub">Connecté en tant que {{ username }}</p>
       </div>
     </div>
-    <button class="welcome-logout" (click)="openModal()">+ Générer</button>
+    <button class="welcome-logout" (click)="openModal('add')">+ Générer</button>
+  </div>
+
+  <!-- Filtre -->
+  <div class="glass-card filter-card">
+    <input placeholder="Matricule employé" #matricule>
+    <input type="number" placeholder="Année" #year>
+    <select #month>
+      <option value="">Tous</option>
+      <option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="m">{{ m }}</option>
+    </select>
+        <button (click)="filterPayslips(matricule.value, year.valueAsNumber, +month.value)">Filtrer</button>
+    <button (click)="loadPayslips()">Réinitialiser</button>
   </div>
 
   <!-- Tableau -->
   <div class="glass-card table-card">
     <table>
       <thead>
-      <tr>
-        <th>ID</th>
-        <th>Employé</th>
-        <th>Salaire (€)</th>
-        <th>Prime (€)</th>
-        <th>Déduction (€)</th>
-        <th>Total (€)</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+          <th>ID</th>
+          <th>Employé</th>
+          <th>Salaire (€)</th>
+          <th>Prime (€)</th>
+          <th>Déduction (€)</th>
+          <th>Total (€)</th>
+          <th>Actions</th>
+        </tr>
       </thead>
-
       <tbody>
-      <tr *ngFor="let p of payslips">
-        <td>{{ p.id }}</td>
-        <td>{{ p.employeNom }}</td>
-        <td>{{ p.salaireBase }}</td>
-        <td>{{ p.prime }}</td>
-        <td>{{ p.deduction }}</td>
-        <td>{{ p.total }}</td>
-        <td class="actions">
-          <button class="btn-action">Exporter PDF</button>
-          <button class="btn-delete">Supprimer</button>
-        </td>
-      </tr>
+        <tr *ngFor="let p of payslips">
+          <td>{{ p.id }}</td>
+          <td>{{ p.employeNom }}</td>
+          <td>{{ p.salaireBase }}</td>
+          <td>{{ p.prime }}</td>
+          <td>{{ p.deduction }}</td>
+          <td>{{ p.total }}</td>
+          <td>
+            <button (click)="openModal('edit', p)">Modifier</button>
+            <button (click)="deletePayslip(p)">Supprimer</button>
+          </td>
+        </tr>    
       </tbody>
     </table>
   </div>
 
 </div>
 
-<!-- Modal -->
+<!-- Modal Add/Edit -->
 <div class="modal-layer" [class.open]="modalOpen">
   <div class="modal-box">
-    <h3>Générer une fiche de paie</h3>
+    <h3>{{ modalMode === 'add' ? 'Générer une fiche de paie' : 'Modifier la fiche de paie' }}</h3>
 
-    <form>
-      <input class="input" placeholder="Nom de l'employé" />
-      <input class="input" type="number" placeholder="Salaire de base (€)" />
+    <form (ngSubmit)="savePayslip()">
+      <select [(ngModel)]="selectedPayslip.userId" name="userId" *ngIf="modalMode === 'add'" required>
+        <option *ngFor="let u of employees" [value]="u.id">
+        {{ u.matricule }} - {{ u.firstName }} {{ u.lastName }}
+      </option>
+      </select>
 
-      <input class="input" type="number" placeholder="Prime (€)" value="0" />
-      <input class="input" type="number" placeholder="Déduction (€)" value="0" />
+      <input type="number" [(ngModel)]="selectedPayslip.salaireBase" name="salaireBase" placeholder="Salaire de base (€)" required>
+      <input type="number" [(ngModel)]="selectedPayslip.prime" name="prime" placeholder="Prime (€)" required>
+      <input type="number" [(ngModel)]="selectedPayslip.deduction" name="deduction" placeholder="Déduction (€)" required>
+      <input type="number" [(ngModel)]="selectedPayslip.year" name="year" placeholder="Année" required>
+      <input type="number" [(ngModel)]="selectedPayslip.month" name="month" placeholder="Mois" required>
 
-      <button class="welcome-logout" style="margin-top:10px;">Enregistrer</button>
-      <button type="button" class="btn-delete" style="margin-top:10px;" (click)="closeModal()">Annuler</button>
+      <button type="submit">Enregistrer</button>
+      <button type="button" (click)="closeModal()">Annuler</button>
     </form>
   </div>
 </div>

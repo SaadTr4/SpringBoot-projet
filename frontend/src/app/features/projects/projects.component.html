@@ -8,7 +8,7 @@
         <p class="welcome-sub">Connecté en tant que {{ username }}</p>
       </div>
     </div>
-    <button class="welcome-logout" (click)="openModal()">+ Ajouter</button>
+    <button class="welcome-logout" (click)="openModal('add')">+ Ajouter</button>
   </div>
 
   <!-- Tableau -->
@@ -28,13 +28,12 @@
       <tbody>
       <tr *ngFor="let p of projects">
         <td>{{ p.id }}</td>
-        <td>{{ p.nom }}</td>
-        <td>{{ p.chefProjet }}</td>
-        <td>{{ p.statut }}</td>
-        <td>{{ p.employesAffectes.join(', ') }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.projectManager }}</td>
+        <td>{{ p.status }}</td>
         <td class="actions">
-          <button class="btn-action">Modifier</button>
-          <button class="btn-delete">Supprimer</button>
+        <button class="btn-action" (click)="openModal('edit', p)">Modifier</button>
+        <button class="btn-delete">Supprimer</button>
         </td>
       </tr>
       </tbody>
@@ -52,14 +51,21 @@
       <input class="input" placeholder="Nom du projet" />
       <input class="input" placeholder="Chef de projet" />
 
-      <select class="input">
-        <option>En cours</option>
-        <option>Terminé</option>
-        <option>Annulé</option>
+      <select [(ngModel)]="selectedProject.projectManager" name="manager">
+        <option *ngFor="let u of users" [ngValue]="u">{{ u.firstName }} {{ u.lastName }}</option>
       </select>
 
-      <button class="welcome-logout" style="margin-top:10px;">Enregistrer</button>
-      <button type="button" class="btn-delete" style="margin-top:10px;" (click)="closeModal()">Annuler</button>
+      <select [(ngModel)]="selectedProject.status" name="status">
+        <option value="IN_PROGRESS">En cours</option>
+        <option value="COMPLETED">Terminé</option>
+        <option value="CANCELLED">Annulé</option>
+        <option value="PLANNED">Planifié</option>
+      </select>
+
+      <div class="button-container">
+        <button class="welcome-logout" type="submit">Enregistrer</button>
+        <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+      </div>
     </form>
   </div>
 </div>

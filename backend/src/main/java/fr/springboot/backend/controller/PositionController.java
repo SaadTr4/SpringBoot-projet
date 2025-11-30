@@ -11,7 +11,6 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/positions")
-@CrossOrigin(origins = "http://localhost:4200")
 public class PositionController {
 
     private final PositionService positionService;

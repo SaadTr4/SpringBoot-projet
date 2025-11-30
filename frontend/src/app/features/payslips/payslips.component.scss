@@ -102,10 +102,12 @@ tr:hover {
   border-radius: 16px;
   width: 400px;
   backdrop-filter: blur(12px);
+  color: #fff;
 }
 
 .input {
   width: 100%;
+  max-width: 95%;
   padding: 12px;
   margin-top: 10px;
   border-radius: 10px;

@@ -1,0 +1,61 @@
+<div class="page-wrapper">
+
+  <!-- Carte du haut -->
+  <div class="glass-card welcome-card">
+    <div class="welcome-left">
+      <div>
+        <h2 class="welcome-title">Liste des postes</h2>
+      </div>
+    </div>
+
+    <!-- Bouton Ajouter -->
+    <button class="welcome-logout" (click)="openAddModal()">+ Ajouter un poste</button>
+  </div>
+
+  <!-- Tableau des postes -->
+  <div class="glass-card table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nom du poste</th>
+          <th>Description</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let poste of postes">
+          <td>{{ poste.id }}</td>
+          <td>{{ poste.name }}</td>
+          <td>{{ poste.description || '-' }}</td>
+          <td class="actions">
+            <button class="btn-action" (click)="openEditModal(poste)">Modifier</button>
+            <button class="btn-delete" (click)="deletePoste(poste)">Supprimer</button>
+            <button class="btn-action" (click)="viewUsers(poste)">Voir utilisateurs</button>
+          </td>
+        </tr>
+        <tr *ngIf="postes.length === 0">
+          <td colspan="4" style="text-align:center; padding:20px; color:rgba(255,255,255,0.6)">
+            Aucun poste trouvé
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal Ajouter / Modifier -->
+<div class="modal-layer" [class.open]="modalOpen">
+  <div class="modal-box">
+    <h3>{{ modalMode === 'add' ? 'Ajouter un poste' : 'Modifier un poste' }}</h3>
+    <form (ngSubmit)="savePoste()">
+      <input class="input" placeholder="Nom du poste" [(ngModel)]="selectedPoste.name" name="name" required>
+      <textarea class="input" placeholder="Description" [(ngModel)]="selectedPoste.description" name="description"></textarea>
+
+      <div class="button-container">
+        <button class="btn-action" type="submit">{{ modalMode === 'add' ? 'Enregistrer' : 'Mettre à jour' }}</button>
+        <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+      </div>
+    </form>
+  </div>
+</div>

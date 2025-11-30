@@ -1,9 +1,10 @@
+/* Poste Page styles */
 .page-wrapper {
   padding: 20px;
   color: white;
 }
 
-/* ===== Glass Card ===== */
+/* Glass card style */
 .glass-card {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -14,10 +15,17 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
+/* Card header */
 .welcome-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.welcome-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .welcome-title {
@@ -52,17 +60,17 @@
 .btn-delete {
   background: #ef4444;
 }
-
-/* ===== Table ===== */
+/* Table styles */
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
 th {
-  padding: 10px;
   text-align: left;
+  padding: 10px;
   background: rgba(255, 255, 255, 0.15);
+  font-size: 0.9rem;
   color: #e0e7ff;
 }
 
@@ -72,7 +80,7 @@ td {
 }
 
 tr:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .actions {
@@ -80,7 +88,7 @@ tr:hover {
   gap: 8px;
 }
 
-/* ===== Modal ===== */
+/* Modal styles */
 .modal-layer {
   position: fixed;
   inset: 0;
@@ -104,47 +112,7 @@ tr:hover {
   color: #fff;
 }
 
-/* ===== Button Container ===== */
-.button-container {
-  display: flex;
-  gap: 15px; /* Space between the buttons */
-  margin-top: 20px; /* Space from the input fields */
-  justify-content: flex-end; /* Align buttons to the right */
-}
-
-/* ===== Button Styles ===== */
-.welcome-logout,
-.btn-action,
-.btn-delete {
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  color: white;
-  font-weight: 600;
-  font-size: 0.85rem;
-  transition: 0.2s;
-}
-
-.welcome-logout,
-.btn-action {
-  background: linear-gradient(135deg, #3b82f6, #06b6d4);
-}
-
-.welcome-logout:hover,
-.btn-action:hover {
-  filter: brightness(1.1);
-}
-
-.btn-delete {
-  background: #ef4444;
-}
-
-.btn-delete:hover {
-  filter: brightness(1.1);
-}
-
-/* ===== Input Styles ===== */
+/* Input fields in the modal */
 .input {
   width: 100%;
   max-width: 95%;
@@ -157,3 +125,10 @@ tr:hover {
   color: white;
 }
 
+/* Button container in modal */
+.button-container {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}

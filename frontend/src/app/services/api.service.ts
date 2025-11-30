@@ -1,6 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { User } from '../model/user.model';
+import { Project } from '../model/project.model';
+import { Department } from '../model/department.model';
+import { Position } from '../model/position.model';
+import { Payslip } from '../model/payslip.model';
 
 @Injectable({
   providedIn: 'root'
@@ -11,92 +16,201 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  //  CONFIGURATION CRITIQUE : withCredentials: true pour les sessions
   private getHttpOptions() {
     return {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
       }),
-      withCredentials: true  //  ESSENTIEL pour envoyer les cookies de session
+      withCredentials: true
     };
   }
 
-  // Méthode de login
+  // ===== Auth =====
   login(credentials: { matricule: string, password: string }): Observable<any> {
-    return this.http.post(
-      `${this.baseUrl}/auth/login`,
-      credentials,
-      this.getHttpOptions()  //  Avec withCredentials
-    );
+    return this.http.post(`${this.baseUrl}/auth/login`, credentials, this.getHttpOptions());
   }
 
-  // Méthode de logout
   logout(): Observable<any> {
-    return this.http.post(
-      `${this.baseUrl}/auth/logout`,
-      {},
-      this.getHttpOptions()
-    );
+    return this.http.post(`${this.baseUrl}/auth/logout`, {}, this.getHttpOptions());
   }
 
-  // Vérifier la session
   checkAuth(): Observable<any> {
-    return this.http.get(
-      `${this.baseUrl}/auth/check`,
-      this.getHttpOptions()
-    );
+    return this.http.get(`${this.baseUrl}/auth/check`, this.getHttpOptions());
   }
 
-  // GET tous les utilisateurs
-  getUsers(): Observable<any> {
-    return this.http.get(
-      `${this.baseUrl}/users`,
-      this.getHttpOptions()
-    );
+  // ===== Utilisateurs =====
+  getUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/users`, this.getHttpOptions());
   }
 
-  // GET un utilisateur par ID
-  getUserById(id: number): Observable<any> {
-    return this.http.get(
-      `${this.baseUrl}/users/${id}`,
-      this.getHttpOptions()
-    );
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(`${this.baseUrl}/users/${id}`, this.getHttpOptions());
   }
 
-  // POST créer un utilisateur
-  createUser(user: any): Observable<any> {
-    return this.http.post(
-      `${this.baseUrl}/users`,
-      user,
-      this.getHttpOptions()
-    );
+  createUser(user: User): Observable<User> {
+    return this.http.post<User>(`${this.baseUrl}/users`, user, this.getHttpOptions());
   }
 
-  // POST modifier un utilisateur (POST, pas PUT !)
-  updateUser(id: number, user: any): Observable<any> {
-    return this.http.post(
-      `${this.baseUrl}/users/${id}`,
-      user,
-      this.getHttpOptions()
-    );
+  updateUser(id: number, user: Partial<User>): Observable<User> {
+    return this.http.post<User>(`${this.baseUrl}/users/${id}`, user, this.getHttpOptions());
   }
 
-  // DELETE supprimer un utilisateur
   deleteUser(id: number): Observable<any> {
-    return this.http.delete(
-      `${this.baseUrl}/users/${id}`,
-      this.getHttpOptions()
-    );
+    return this.http.delete(`${this.baseUrl}/users/${id}`, this.getHttpOptions());
   }
 
-  // GET recherche multicritère
-  searchUsers(params: any): Observable<any> {
-    return this.http.get(
-      `${this.baseUrl}/users/search`,
-      {
-        ...this.getHttpOptions(),
-        params
-      }
-    );
+  searchUsers(params: any): Observable<User[]> {
+    return this.http.get<User[]>(`${this.baseUrl}/users/search`, {
+      ...this.getHttpOptions(),
+      params
+    });
   }
+    // ===== Projets =====
+  getProjects(): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.baseUrl}/projects`, this.getHttpOptions());
+  }
+
+  getProjectById(id: number): Observable<Project> {
+    return this.http.get<Project>(`${this.baseUrl}/projects/${id}`, this.getHttpOptions());
+  }
+
+  createProject(project: Project): Observable<Project> {
+    return this.http.post<Project>(`${this.baseUrl}/projects`, project, this.getHttpOptions());
+  }
+
+  updateProjectManager(id: number, managerId: number): Observable<boolean> {
+    return this.http.put<boolean>(`${this.baseUrl}/projects/${id}/manager/${managerId}`, {}, this.getHttpOptions());
+  }
+
+  assignUser(projectId: number, userId: number): Observable<boolean> {
+    return this.http.put<boolean>(`${this.baseUrl}/projects/${projectId}/assign/${userId}`, {}, this.getHttpOptions());
+  }
+
+  removeUser(projectId: number, userId: number): Observable<boolean> {
+    return this.http.put<boolean>(`${this.baseUrl}/projects/${projectId}/remove/${userId}`, {}, this.getHttpOptions());
+  }
+
+  updateStatus(projectId: number, status: string): Observable<boolean> {
+    return this.http.put<boolean>(`${this.baseUrl}/projects/${projectId}/status?status=${status}`, {}, this.getHttpOptions());
+  }
+
+  deleteProject(id: number): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/projects/${id}`, this.getHttpOptions());
+  }
+
+  filterProjects(params: any): Observable<Project[]> {
+    return this.http.get<Project[]>(`${this.baseUrl}/projects/filter`, { ...this.getHttpOptions(), params });
+  }
+
+  // ===== Départements =====
+getDepartments(): Observable<Department[]> {
+  return this.http.get<Department[]>(`${this.baseUrl}/departments`, this.getHttpOptions());
+}
+
+getDepartmentById(id: number): Observable<Department> {
+  return this.http.get<Department>(`${this.baseUrl}/departments/${id}`, this.getHttpOptions());
+}
+
+createDepartment(dept: Partial<Department>): Observable<Department> {
+  return this.http.post<Department>(`${this.baseUrl}/departments`, dept, this.getHttpOptions());
+}
+
+updateDepartment(id: number, dept: Partial<Department>): Observable<Department> {
+  return this.http.put<Department>(`${this.baseUrl}/departments/${id}`, dept, this.getHttpOptions());
+}
+
+deleteDepartment(id: number): Observable<any> {
+  return this.http.delete(`${this.baseUrl}/departments/${id}`, this.getHttpOptions());
+}
+
+// Assign / Remove users
+assignUserToDepartment(departmentId: number, matricule: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/departments/${departmentId}/assign?matricule=${matricule}`, {}, this.getHttpOptions());
+}
+
+removeUserFromDepartment(departmentId: number, matricule: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/departments/${departmentId}/remove?matricule=${matricule}`, {}, this.getHttpOptions());
+}
+
+// ===== Positions =====
+getPositions(): Observable<Position[]> {
+  return this.http.get<Position[]>(`${this.baseUrl}/positions`, this.getHttpOptions());
+}
+
+getPositionById(id: number): Observable<Position> {
+  return this.http.get<Position>(`${this.baseUrl}/positions/${id}`, this.getHttpOptions());
+}
+
+createPosition(position: Position): Observable<Position> {
+  return this.http.post<Position>(`${this.baseUrl}/positions`, position, this.getHttpOptions());
+}
+
+updatePosition(id: number, position: Position): Observable<Position> {
+  return this.http.put<Position>(`${this.baseUrl}/positions/${id}`, position, this.getHttpOptions());
+}
+
+deletePosition(id: number): Observable<any> {
+  return this.http.delete(`${this.baseUrl}/positions/${id}`, this.getHttpOptions());
+}
+
+// Users liés à un poste
+getUsersOfPosition(id: number): Observable<User[]> {
+  return this.http.get<User[]>(`${this.baseUrl}/positions/${id}/users`, this.getHttpOptions());
+}
+
+countUsersOfPosition(id: number): Observable<number> {
+  return this.http.get<number>(`${this.baseUrl}/positions/${id}/count`, this.getHttpOptions());
+}
+
+assignUserToPosition(id: number, matricule: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/positions/${id}/assign?matricule=${matricule}`, {}, this.getHttpOptions());
+}
+
+removeUserFromPosition(id: number, matricule: string): Observable<any> {
+  return this.http.post(`${this.baseUrl}/positions/${id}/remove?matricule=${matricule}`, {}, this.getHttpOptions());
+}
+
+// ===== Fiches de paie =====
+getPayslips(): Observable<Payslip[]> {
+  return this.http.get<Payslip[]>(`${this.baseUrl}/payslips`, this.getHttpOptions());
+}
+
+getPayslipsByUser(userId: number): Observable<Payslip[]> {
+  return this.http.get<Payslip[]>(`${this.baseUrl}/payslips/user/${userId}`, this.getHttpOptions());
+}
+
+filterPayslips(params: any): Observable<Payslip[]> {
+  return this.http.get<Payslip[]>(`${this.baseUrl}/payslips/filter`, {
+    ...this.getHttpOptions(),
+    params
+  });
+}
+
+createPayslip(payslip: Payslip): Observable<Payslip> {
+  const body = {
+    matricule: payslip.userId,
+    year: payslip.year,
+    month: payslip.month,
+    bonuses: payslip.prime,
+    deductions: payslip.deduction
+  };
+  return this.http.post<Payslip>(`${this.baseUrl}/payslips/create`, null, {
+    ...this.getHttpOptions(),
+    params: body
+  });
+}
+
+updatePayslip(id: number, payslip: Partial<Payslip>): Observable<Payslip> {
+  const body = {
+    bonuses: payslip.prime ?? 0,
+    deductions: payslip.deduction ?? 0
+  };
+  return this.http.put<Payslip>(`${this.baseUrl}/payslips/${id}`, body, this.getHttpOptions());
+}
+
+
+deletePayslip(id: number): Observable<any> {
+  return this.http.delete(`${this.baseUrl}/payslips/${id}`, this.getHttpOptions());
+}
+
 }

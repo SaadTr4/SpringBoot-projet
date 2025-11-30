@@ -5,68 +5,89 @@
     <div class="welcome-left">
       <div>
         <h2 class="welcome-title">Liste des employés</h2>
-        <p class="welcome-sub">Connecté en tant que {{ username }}</p>
+        <p class="welcome-sub">
+          Connecté en tant que {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+        </p>
       </div>
     </div>
 
-    <button class="welcome-logout" (click)="openModal()">+ Ajouter</button>
+    <!-- Bouton Ajouter seulement si admin ou RH -->
+    <button *ngIf="canAdd" class="welcome-logout" (click)="openModal('add')">+ Ajouter</button>
   </div>
 
-  <!-- Tableau -->
+  <!-- Recherche -->
+  <div class="glass-card table-card" *ngIf="showFilter">
+    <form (ngSubmit)="searchUsers()">
+      <div class="search-grid">
+        <div class="search-field">
+          <label>Nom, Prénom ou Matricule</label>
+          <input type="text" [(ngModel)]="searchText" name="searchText" class="input">
+        </div>
+        <div class="search-field">
+          <label>Rôle</label>
+          <select [(ngModel)]="searchRole" name="searchRole" class="input">
+            <option value="">Tous les rôles</option>
+            <option *ngFor="let r of roles" [value]="r">{{ r }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="button-container">
+        <button class="btn-action" type="submit">Rechercher</button>
+        <button type="button" class="btn-delete" (click)="resetSearch()">Réinitialiser</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tableau des employés -->
   <div class="glass-card table-card">
     <table>
       <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Email</th>
-        <th>Rôle</th>
-        <th>Département</th>
-        <th>Projet</th>
-        <th>Salaire (€)</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+          <th>Matricule</th>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th *ngIf="canEdit || canDelete">Actions</th>
+        </tr>
       </thead>
-
       <tbody>
-      <tr *ngFor="let e of employees">
-        <td>{{ e.id }}</td>
-        <td>{{ e.nom }}</td>
-        <td>{{ e.prenom }}</td>
-        <td>{{ e.email }}</td>
-        <td>{{ e.role }}</td>
-        <td>{{ e.departement }}</td>
-        <td>{{ e.projet }}</td>
-        <td>{{ e.salaire }}</td>
-        <td class="actions">
-          <button class="btn-action">Modifier</button>
-          <button class="btn-delete">Supprimer</button>
-        </td>
-      </tr>
+        <tr *ngFor="let e of employees">
+          <td>{{ e.matricule }}</td>
+          <td>{{ e.firstName }}</td>
+          <td>{{ e.lastName }}</td>
+          <td>{{ e.email }}</td>
+          <td>{{ e.role }}</td>
+          <td *ngIf="canEdit || canDelete" class="actions">
+            <button *ngIf="canEdit" class="btn-action" (click)="openModal('edit', e)">Modifier</button>
+            <button *ngIf="canDelete" class="btn-delete" (click)="deleteUser(e.id!)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="employees.length === 0">
+          <td colspan="6" style="text-align:center; padding:20px; color:rgba(255,255,255,0.6)">
+            Aucun employé trouvé
+          </td>
+        </tr>
       </tbody>
-
     </table>
   </div>
-
 </div>
 
-<!-- Modal Ajouter -->
+<!-- Modal Ajouter / Modifier -->
 <div class="modal-layer" [class.open]="modalOpen">
   <div class="modal-box">
-    <h3>Ajouter un employé</h3>
+    <h3>{{ modalMode === 'add' ? 'Ajouter un employé' : 'Modifier un employé' }}</h3>
+    <form (ngSubmit)="saveUser()">
+      <input class="input" placeholder="Nom" [(ngModel)]="selectedUser.firstName" name="firstName" required>
+      <input class="input" placeholder="Prénom" [(ngModel)]="selectedUser.lastName" name="lastName" required>
+      <input class="input" placeholder="Email" [(ngModel)]="selectedUser.email" name="email" required>
+      <input class="input" placeholder="Rôle" [(ngModel)]="selectedUser.role" name="role">
+      <input class="input" placeholder="Matricule" [(ngModel)]="selectedUser.matricule" name="matricule">
 
-    <form>
-      <input class="input" placeholder="Nom" />
-      <input class="input" placeholder="Prénom" />
-      <input class="input" placeholder="Email" />
-      <input class="input" placeholder="Rôle" />
-      <input class="input" placeholder="Département" />
-      <input class="input" placeholder="Projet" />
-      <input class="input" type="number" placeholder="Salaire (€)" />
-
-      <button class="welcome-logout" style="margin-top:10px;">Enregistrer</button>
-      <button type="button" class="btn-delete" style="margin-top:10px;" (click)="closeModal()">Annuler</button>
+      <div class="button-container">
+        <button class="btn-action" type="submit">{{ modalMode === 'add' ? 'Enregistrer' : 'Mettre à jour' }}</button>
+        <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+      </div>
     </form>
   </div>
 </div>

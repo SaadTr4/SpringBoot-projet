@@ -98,3 +98,78 @@ tr:hover {
   display: flex;
   gap: 8px;
 }
+
+/* Modal styles */
+.modal-layer {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 500;
+}
+
+.modal-layer.open {
+  display: flex;
+}
+
+.modal-box {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 20px;
+  border-radius: 16px;
+  width: 400px;
+  backdrop-filter: blur(12px);
+  color: #fff;
+}
+
+/* Input fields */
+.input {
+  width: 100%;
+  max-width: 95%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Button container for modal */
+.button-container {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: flex-end;
+}
+
+/* Button styles */
+.welcome-logout,
+.btn-delete {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: 0.2s;
+}
+
+.welcome-logout {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+}
+
+.btn-delete {
+  background: #ef4444;
+}
+
+/* Hover effects */
+.welcome-logout:hover {
+  filter: brightness(1.1);
+}
+
+.btn-delete:hover {
+  filter: brightness(1.1);
+}
