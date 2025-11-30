@@ -1,33 +1,34 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-
-
-
+import { Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule],  // 👈 OBLIGATOIRE POUR ngForm + *ngIf
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
 
-  errorMessage = '';
+  errorMessage = '';   // 👈 DOIT EXISTER car utilisé dans ton HTML
 
-  constructor(private router: Router) {}
+  constructor(private api: ApiService, private router: Router) {}
 
   login(form: any) {
-    const username = form.username;
-    const password = form.password;
+    const { username, password } = form;
 
-    // ⚠️ TEMPORAIRE (backend non prêt)
-    if (username === 'admin' && password === 'admin') {
-      this.router.navigate(['/dashboard']);
-    } else {
-      this.errorMessage = 'Nom d’utilisateur ou mot de passe incorrect.';
-    }
+    this.api.login({ matricule: username, password }).subscribe({
+      next: (res: any) => {
+        console.log("Connexion OK:", res);
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMessage = "Matricule ou mot de passe incorrect";
+      }
+    });
   }
 }
