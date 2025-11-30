@@ -208,7 +208,7 @@ public class User {
         this.position = position;
     }
 
-    // ✅ GETTER & SETTER POUR L'IMAGE
+    //  GETTER & SETTER POUR L'IMAGE
     public byte[] getProfileImage() {
         return profileImage;
     }
@@ -217,7 +217,7 @@ public class User {
         this.profileImage = profileImage;
     }
 
-    // ✅ GETTER & SETTER POUR PROJECTS
+    //  GETTER & SETTER POUR PROJECTS
     public Set<Project> getProjects() {
         return projects;
     }
