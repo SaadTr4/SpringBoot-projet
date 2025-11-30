@@ -1,10 +1,11 @@
 package fr.springboot.backend.service;
 
 import fr.springboot.backend.dto.ProjectDTO;
+import fr.springboot.backend.enums.Status;
 import fr.springboot.backend.model.Project;
 import fr.springboot.backend.model.User;
-import fr.springboot.backend.enums.Status;
 import fr.springboot.backend.repository.ProjectRepository;
+import fr.springboot.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,19 +17,27 @@ import java.util.stream.Collectors;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
     }
 
+    // ==================== CRUD ====================
+
     public Project save(Project project) {
-        // Pour l'instant, on ne gère pas la persistance des Users
         return projectRepository.save(project);
+    }
+
+    public Optional<Project> findById(Integer id) {
+        return projectRepository.findById(id);
     }
 
     public List<Project> findAll() {
         return projectRepository.findAllWithUsers();
     }
+
     public List<ProjectDTO> getAllProjectsDTO() {
         return findAll().stream()
                 .map(p -> new ProjectDTO(
@@ -40,42 +49,93 @@ public class ProjectService {
                 ))
                 .collect(Collectors.toList());
     }
-    public Optional<Project> findById(Integer id) {
-        return projectRepository.findById(id);
+
+    public void delete(Integer id) {
+        projectRepository.deleteById(id);
     }
 
-    public List<Project> findByUserId(Integer userId) {
-        return projectRepository.findByUserId(userId);
-    }
-
-    public List<Project> findWithFilters(String name, String managerMatricule, Status status) {
-        return projectRepository.findWithFilters(name, managerMatricule, status);
-    }
+    // ==================== STATUS ====================
 
     @Transactional
-    public boolean assignUserToProject(Integer projectId, User user) {
-        Optional<Project> projectOpt = projectRepository.findById(projectId);
-        if (projectOpt.isPresent() && user != null) {
-            Project project = projectOpt.get();
-            project.getUsers().add(user); // juste en mémoire, pas de save sur user
-            return true;
-        }
-        return false;
+    public boolean updateStatus(Integer id, Status status) {
+        return projectRepository.findById(id)
+                .map(project -> {
+                    project.setStatus(status);
+                    projectRepository.save(project);
+                    return true;
+                })
+                .orElse(false);
     }
 
+    // ==================== USER-PROJECT RELATIONS ====================
+
     @Transactional
-    public boolean updateProjectManager(Integer projectId, User manager) {
+    public boolean assignUserToProject(Integer projectId, Integer userId) {
         Optional<Project> projectOpt = projectRepository.findById(projectId);
-        if (projectOpt.isPresent() && manager != null) {
+        Optional<User> userOpt = userRepository.findById(userId);
+
+        if (projectOpt.isPresent() && userOpt.isPresent()) {
             Project project = projectOpt.get();
-            project.setProjectManager(manager); // juste en mémoire pour l'instant
+            User user = userOpt.get();
+
+            project.getUsers().add(user);
+            user.getProjects().add(project);
+
             projectRepository.save(project);
             return true;
         }
         return false;
     }
 
-    public void delete(Integer id) {
-        projectRepository.deleteById(id);
+    @Transactional
+    public boolean removeUserFromProject(Integer projectId, Integer userId) {
+        Optional<Project> projectOpt = projectRepository.findById(projectId);
+        Optional<User> userOpt = userRepository.findById(userId);
+
+        if (projectOpt.isPresent() && userOpt.isPresent()) {
+            Project project = projectOpt.get();
+            User user = userOpt.get();
+
+            project.getUsers().remove(user);
+            user.getProjects().remove(project);
+
+            projectRepository.save(project);
+            return true;
+        }
+        return false;
+    }
+
+    @Transactional
+    public boolean updateProjectManager(Integer projectId, Integer managerId) {
+        Optional<Project> projectOpt = projectRepository.findById(projectId);
+        Optional<User> managerOpt = userRepository.findById(managerId);
+
+        if (projectOpt.isPresent() && managerOpt.isPresent()) {
+            Project project = projectOpt.get();
+            User newManager = managerOpt.get();
+
+            // ancien manager
+            User oldManager = project.getProjectManager();
+
+            if (oldManager != null && !oldManager.getId().equals(newManager.getId())) {
+                project.getUsers().remove(oldManager);
+                oldManager.getProjects().remove(project);
+            }
+
+            // ajoute le nouveau manager au projet
+            if (!project.getUsers().contains(newManager)) {
+                project.getUsers().add(newManager);
+                newManager.getProjects().add(project);
+            }
+
+            project.setProjectManager(newManager);
+            projectRepository.save(project);
+            return true;
+        }
+        return false;
+    }
+
+    public List<Project> findWithFilters(String name, String managerMatricule, Status status) {
+        return projectRepository.findWithFilters(name, managerMatricule, status);
     }
 }

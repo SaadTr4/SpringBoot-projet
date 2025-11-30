@@ -8,19 +8,34 @@
 
     <div class="form-row">
       <label class="label">Nom d'utilisateur</label>
-      <!-- ICI → username devient matricule MAIS on garde ton style -->
-      <input class="input" name="matricule" ngModel required placeholder="ex: EMP1A49B" />
+      <!--  Changé "username" en "matricule" -->
+      <input
+        class="input"
+        name="matricule"
+        ngModel
+        required
+        placeholder="ex: EMP1A49B"
+      />
     </div>
 
     <div class="form-row">
       <label class="label">Mot de passe</label>
-      <input class="input" type="password" name="password" ngModel required placeholder="••••••••" />
+      <input
+        class="input"
+        type="password"
+        name="password"
+        ngModel
+        required
+        placeholder="••••••••"
+      />
     </div>
 
-    <button class="btn" type="submit">Se connecter</button>
+    <button class="btn" type="submit" [disabled]="!f.valid">
+      Se connecter
+    </button>
   </form>
 
-  <!-- Message d’erreur -->
+  <!-- Message d'erreur -->
   <div class="alert" *ngIf="errorMessage">
     {{ errorMessage }}
   </div>

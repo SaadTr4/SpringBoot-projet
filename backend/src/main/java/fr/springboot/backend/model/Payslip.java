@@ -45,7 +45,7 @@ public class Payslip implements Serializable {
     private BigDecimal netPay;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "matricule", referencedColumnName = "matricule")
+    @JoinColumn(name = "registration_number", referencedColumnName = "registration_number")
     private User user;
 
     // ===============================
