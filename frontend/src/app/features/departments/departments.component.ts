@@ -35,6 +35,8 @@ export class DepartmentsComponent implements OnInit {
     });
   }
 
+
+
   openAddModal() {
     this.newDepartment = {};
     this.modalOpen = true;
