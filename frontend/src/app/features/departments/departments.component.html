@@ -26,36 +26,36 @@
       </thead>
       <tbody>
       <tr *ngFor="let d of departments">
-        <td>{{ d.id }}</td>
-        <td>{{ d.nom }}</td>
-        <td>{{ d.chef }}</td>
-        <td>{{ d.nbEmployes }}</td>
-        <td class="actions">
-          <button class="btn-action">Modifier</button>
-          <button class="btn-action">Membres</button>
-          <button class="btn-delete">Supprimer</button>
-        </td>
-      </tr>
+          <td>{{ d.id }}</td>
+          <td>{{ d.name }}</td>
+          <td>{{ d.head || '-' }}</td>
+          <td>{{ d.nbEmployees || 0 }}</td>
+          <td>
+            <button class="btn-action" (click)="openAddModal()">Modifier</button>
+            <button class="btn-delete" (click)="deleteDepartment(d.id!)">Supprimer</button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
 
   <!-- Modal d'ajout -->
-  <div class="modal-layer" [class.open]="modalOpen">
-    <div class="modal-box">
-      <h3>Ajouter un département</h3>
+<!-- Modal d'ajout -->
+<div class="modal-layer" [class.open]="modalOpen">
+  <div class="modal-box">
+    <h3>Ajouter un département</h3>
 
-      <form>
-        <input class="input" placeholder="Nom du département" />
-        <input class="input" placeholder="Chef" />
-        <input class="input" placeholder="Nombre d'employés" />
+    <form (ngSubmit)="saveDepartment()">
+      <input class="input" placeholder="Nom du département" [(ngModel)]="newDepartment.name" name="name" required />
+      <input class="input" placeholder="Code" [(ngModel)]="newDepartment.code" name="code" required />
+      <input class="input" placeholder="Description" [(ngModel)]="newDepartment.description" name="description" />
 
-        <div class="button-container">
-          <button class="welcome-logout" type="submit">Enregistrer</button>
-          <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
-        </div>
-      </form>
-    </div>
+      <div class="button-container">
+        <button class="welcome-logout" type="submit">Enregistrer</button>
+        <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+      </div>
+    </form>
   </div>
+</div>
 
 </div>

@@ -24,7 +24,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
+@CrossOrigin(
+        origins = "http://localhost:4200",
+        allowCredentials = "true",
+        allowedHeaders = "*",
+        exposedHeaders = "Authorization, Set-Cookie"
+)
 public class AuthController {
 
     private UserRepository userRepository;

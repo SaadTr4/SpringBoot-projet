@@ -1,5 +1,6 @@
 package fr.springboot.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.springboot.backend.enums.ContractType;
 import fr.springboot.backend.enums.Grade;
 import fr.springboot.backend.enums.Role;
@@ -9,6 +10,8 @@ import java.util.HashSet;
 import java.util.Set;
 import jakarta.persistence.Basic;
 import jakarta.persistence.FetchType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "user_account")
@@ -18,7 +21,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(unique = true, nullable = false, length = 20)
+    @Column(name = "registration_number", unique = true, nullable = false, length = 20)
     private String matricule;
 
     @Column(name = "last_name", nullable = false, length = 50)
@@ -64,13 +67,14 @@ public class User {
 
     // AJOUT DU CHAMP IMAGE
     //  APRÈS - FORCE BYTEA EXPLICITEMENT
-    @Column(name = "profile_image", columnDefinition = "bytea")
+    @Column(name = "image", columnDefinition = "bytea")
     @Basic(fetch = FetchType.LAZY)
+    @JdbcTypeCode(SqlTypes.BINARY)
     private byte[] profileImage;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
-            name = "project_user",
+            name = "user_project",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "project_id")
     )
@@ -224,5 +228,10 @@ public class User {
 
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
+    }
+
+    @JsonProperty("hasImage")
+    public boolean hasImage() {
+        return this.profileImage != null && this.profileImage.length > 0;
     }
 }

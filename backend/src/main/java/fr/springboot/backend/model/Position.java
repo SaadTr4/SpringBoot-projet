@@ -19,8 +19,7 @@ public class Position {
     // Constructeurs
     public Position() {}
 
-    public Position(Integer id, String name, String description) {
-        this.id = id;
+    public Position( String name, String description) {
         this.name = name;
         this.description = description;
     }

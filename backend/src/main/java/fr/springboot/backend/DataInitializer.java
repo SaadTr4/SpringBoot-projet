@@ -1,16 +1,10 @@
 package fr.springboot.backend;
 
-import fr.springboot.backend.enums.ContractType;
-import fr.springboot.backend.enums.Grade;
-import fr.springboot.backend.enums.Role;
-import fr.springboot.backend.model.Department;
-import fr.springboot.backend.model.Position;
-import fr.springboot.backend.model.User;
-import fr.springboot.backend.repository.DepartmentRepository;
-import fr.springboot.backend.repository.PositionRepository;
-import fr.springboot.backend.repository.UserRepository;
+import fr.springboot.backend.enums.*;
+import fr.springboot.backend.model.*;
+import fr.springboot.backend.repository.*;
+import fr.springboot.backend.service.ProjectService;
 import fr.springboot.backend.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -20,198 +14,170 @@ import java.math.BigDecimal;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final DepartmentRepository departmentRepository;
+    private final PositionRepository positionRepository;
+    private final ProjectRepository projectRepository;
+    private final PayslipRepository payslipRepository;
 
-    @Autowired
-    private DepartmentRepository departmentRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private PositionRepository positionRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private UserService userService;
+    public DataInitializer(
+            UserRepository userRepository,
+            DepartmentRepository departmentRepository,
+            PositionRepository positionRepository,
+            ProjectRepository projectRepository,
+            PayslipRepository payslipRepository,
+            PasswordEncoder passwordEncoder
+    ) {
+        this.userRepository = userRepository;
+        this.departmentRepository = departmentRepository;
+        this.positionRepository = positionRepository;
+        this.projectRepository = projectRepository;
+        this.payslipRepository = payslipRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
-        // Vérifier si des utilisateurs existent déjà
+        // ⚠️ STOP SI LA BASE CONTIENT DÉJÀ DES USERS !
         if (userRepository.count() > 0) {
-            System.out.println("✅ Des utilisateurs existent déjà dans la base de données.");
+            System.out.println("➡️ Base déjà initialisée, aucun chargement effectué.");
             return;
         }
 
-        System.out.println("🚀 Initialisation des données de test...");
+        System.out.println("🚀 Initialisation de la base Spring Boot...");
 
-        // ✅ CRÉER LES DÉPARTEMENTS AVEC LE CHAMP CODE
-        Department it = departmentRepository.findById(1).orElseGet(() -> {
-            Department dept = new Department();
-            dept.setCode("IT");  // ✅ AJOUT DU CODE
-            dept.setName("Informatique");
-            return departmentRepository.save(dept);
-        });
+        // ==========================
+        // DÉPARTEMENTS
+        // ==========================
+        Department informatique = departmentRepository.save(new Department("Informatique", "IT", "Gestion du SI et dev"));
+        Department rh = departmentRepository.save(new Department("Ressources Humaines", "RH", "Gestion RH"));
+        Department finance = departmentRepository.save(new Department("Finance", "FIN", "Finance & compta"));
 
-        Department rh = departmentRepository.findById(2).orElseGet(() -> {
-            Department dept = new Department();
-            dept.setCode("RH");  // ✅ AJOUT DU CODE
-            dept.setName("Ressources Humaines");
-            return departmentRepository.save(dept);
-        });
+        // ==========================
+        // POSTES
+        // ==========================
+        Position devBackend = positionRepository.save(new Position("Développeur Backend", "Développement backend"));
+        Position devFrontend = positionRepository.save(new Position("Développeur Frontend", "Interfaces UI"));
+        Position chefProjet = positionRepository.save(new Position("Chef de Projet", "Pilotage projet"));
+        Position chefDepartement = positionRepository.save(new Position("Chef de Département", "Responsable département"));
+        Position adminSystem = positionRepository.save(new Position("Administrateur Système", "Gestion systèmes"));
+        Position responsableRH = positionRepository.save(new Position("Responsable RH", "Gestion RH"));
 
-        Department finance = departmentRepository.findById(3).orElseGet(() -> {
-            Department dept = new Department();
-            dept.setCode("FIN");  // ✅ AJOUT DU CODE
-            dept.setName("Finance");
-            return departmentRepository.save(dept);
-        });
+        // ==========================
+        // UTILISATEURS
+        // ==========================
 
-        // Créer les positions
-        Position dev = positionRepository.findById(1).orElseGet(() -> {
-            Position pos = new Position();
-            pos.setName("Développeur");
-            return positionRepository.save(pos);
-        });
-
-        Position manager = positionRepository.findById(2).orElseGet(() -> {
-            Position pos = new Position();
-            pos.setName("Manager");
-            return positionRepository.save(pos);
-        });
-
-        Position analyst = positionRepository.findById(3).orElseGet(() -> {
-            Position pos = new Position();
-            pos.setName("Analyste");
-            return positionRepository.save(pos);
-        });
-
-        // ✅ CRÉER LES 7 UTILISATEURS AVEC MATRICULES GÉNÉRÉS
-
-        // 1. ADMINISTRATEUR
-        User admin = new User();
-        admin.setMatricule(userService.generateMatricule());
-        admin.setLastName("Admin");
-        admin.setFirstName("Super");
-        admin.setEmail("admin@entreprise.fr");
-        admin.setPassword(passwordEncoder.encode("motdepasse123"));
-        admin.setPhone("0601020304");
-        admin.setAddress("123 Rue Principale, Paris");
-        admin.setGrade(Grade.SENIOR);
-        admin.setRole(Role.ADMINISTRATEUR);
-        admin.setContractType(ContractType.PERMANENT_FULL_TIME);
-        admin.setBaseSalary(new BigDecimal("5000.00"));
-        admin.setDepartment(it);
-        admin.setPosition(manager);
-        userRepository.save(admin);
-
-        // 2. EMPLOYÉ IT
-        User employe = new User();
-        employe.setMatricule(userService.generateMatricule());
-        employe.setLastName("Dupont");
-        employe.setFirstName("Jean");
-        employe.setEmail("jean.dupont@entreprise.fr");
-        employe.setPassword(passwordEncoder.encode("motdepasse123"));
-        employe.setPhone("0601020305");
-        employe.setAddress("456 Avenue de la République, Lyon");
-        employe.setGrade(Grade.JUNIOR);
-        employe.setRole(Role.EMPLOYE);
-        employe.setContractType(ContractType.PERMANENT_FULL_TIME);
-        employe.setBaseSalary(new BigDecimal("2500.00"));
-        employe.setDepartment(it);
-        employe.setPosition(dev);
-        userRepository.save(employe);
-
-        // 3. CHEF DE PROJET IT
-        User chefProjet = new User();
-        chefProjet.setMatricule(userService.generateMatricule());
-        chefProjet.setLastName("Martin");
-        chefProjet.setFirstName("Sophie");
-        chefProjet.setEmail("sophie.martin@entreprise.fr");
-        chefProjet.setPassword(passwordEncoder.encode("motdepasse123"));
-        chefProjet.setPhone("0601020306");
-        chefProjet.setAddress("789 Boulevard des Champs, Marseille");
-        chefProjet.setGrade(Grade.SENIOR);
-        chefProjet.setRole(Role.CHEF_PROJET);
-        chefProjet.setContractType(ContractType.PERMANENT_FULL_TIME);
-        chefProjet.setBaseSalary(new BigDecimal("4000.00"));
-        chefProjet.setDepartment(it);
-        chefProjet.setPosition(manager);
-        userRepository.save(chefProjet);
-
-        // 4. CHEF DÉPARTEMENT IT (ADMINISTRATEUR - Haitam)
-        User chefDept = new User();
-        chefDept.setMatricule(userService.generateMatricule());
-        chefDept.setLastName("Bernard");
-        chefDept.setFirstName("Haitam");
-        chefDept.setEmail("haitam.bernard@entreprise.fr");
-        chefDept.setPassword(passwordEncoder.encode("motdepasse123"));
-        chefDept.setPhone("0601020307");
-        chefDept.setAddress("321 Rue de la Liberté, Toulouse");
-        chefDept.setGrade(Grade.EXPERT);
-        chefDept.setRole(Role.ADMINISTRATEUR);  // ✅ ADMINISTRATEUR pour les tests
-        chefDept.setContractType(ContractType.PERMANENT_FULL_TIME);
-        chefDept.setBaseSalary(new BigDecimal("6000.00"));
-        chefDept.setDepartment(it);
-        chefDept.setPosition(manager);
-        userRepository.save(chefDept);
-
-        // 5. EMPLOYÉ RH
-        User employeRH = new User();
-        employeRH.setMatricule(userService.generateMatricule());
-        employeRH.setLastName("Petit");
-        employeRH.setFirstName("Claire");
-        employeRH.setEmail("claire.petit@entreprise.fr");
-        employeRH.setPassword(passwordEncoder.encode("motdepasse123"));
-        employeRH.setPhone("0601020308");
-        employeRH.setAddress("654 Avenue Victor Hugo, Nantes");
-        employeRH.setGrade(Grade.INTERMEDIAIRE);
-        employeRH.setRole(Role.EMPLOYE);
-        employeRH.setContractType(ContractType.PERMANENT_FULL_TIME);
-        employeRH.setBaseSalary(new BigDecimal("3000.00"));
-        employeRH.setDepartment(rh);
-        employeRH.setPosition(analyst);
-        userRepository.save(employeRH);
-
-        // 6. CHEF DÉPARTEMENT RH
-        User chefDeptRH = new User();
-        chefDeptRH.setMatricule(userService.generateMatricule());
-        chefDeptRH.setLastName("Moreau");
-        chefDeptRH.setFirstName("Thomas");
-        chefDeptRH.setEmail("thomas.moreau@entreprise.fr");
-        chefDeptRH.setPassword(passwordEncoder.encode("motdepasse123"));
-        chefDeptRH.setPhone("0601020309");
-        chefDeptRH.setAddress("987 Rue Jean Jaurès, Strasbourg");
-        chefDeptRH.setGrade(Grade.SENIOR);
-        chefDeptRH.setRole(Role.CHEF_DEPARTEMENT);
-        chefDeptRH.setContractType(ContractType.PERMANENT_FULL_TIME);
-        chefDeptRH.setBaseSalary(new BigDecimal("5500.00"));
-        chefDeptRH.setDepartment(rh);
-        chefDeptRH.setPosition(manager);
-        userRepository.save(chefDeptRH);
-
-        // 7. EMPLOYÉ FINANCE
-        User employeFinance = new User();
-        employeFinance.setMatricule(userService.generateMatricule());
-        employeFinance.setLastName("Laurent");
-        employeFinance.setFirstName("Emma");
-        employeFinance.setEmail("emma.laurent@entreprise.fr");
-        employeFinance.setPassword(passwordEncoder.encode("motdepasse123"));
-        employeFinance.setPhone("0601020310");
-        employeFinance.setAddress("147 Boulevard Gambetta, Bordeaux");
-        employeFinance.setGrade(Grade.JUNIOR);
-        employeFinance.setRole(Role.EMPLOYE);
-        employeFinance.setContractType(ContractType.PERMANENT_FULL_TIME);
-        employeFinance.setBaseSalary(new BigDecimal("2800.00"));
-        employeFinance.setDepartment(finance);
-        employeFinance.setPosition(analyst);
-        userRepository.save(employeFinance);
-
-        System.out.println(" 7 utilisateurs de test créés avec succès !");
-        System.out.println(" Matricules générés :");
-        userRepository.findAll().forEach(u ->
-                System.out.println("   - " + u.getMatricule() + " : " + u.getFullName() + " (" + u.getRole() + ")")
+        User jean_claude = saveUser(
+                "EMP001", "Ilboudo", "Jean-Claude", "jean_claude.ilboudo@entreprise.fr",
+                ContractType.APPRENTICESHIP, Grade.SENIOR, Role.CHEF_PROJET,
+                informatique, chefProjet, "4000.00", "0612345678"
         );
+
+        User saad = saveUser(
+                "EMP002", "Tarmidi", "Saad", "saad.tarmidi@entreprise.fr",
+                ContractType.PERMANENT_FULL_TIME, Grade.JUNIOR, Role.EMPLOYE,
+                rh, devBackend, "3000.00", "0698765432"
+        );
+
+        User adam = saveUser(
+                "EMP003", "Swiczka", "Adam", "adam.swiczka@entreprise.fr",
+                ContractType.FIXED_TERM_FULL_TIME, Grade.EXPERT, Role.CHEF_DEPARTEMENT,
+                finance, chefDepartement, "5000000.00", "0678901234"
+        );
+
+        User haitam = saveUser(
+                "EMP004", "Hania", "Haitam", "haitam.hania@entreprise.fr",
+                ContractType.PERMANENT_FULL_TIME, Grade.SENIOR, Role.ADMINISTRATEUR,
+                informatique, adminSystem, "4500.00", "0654321098"
+        );
+
+        User medhi = saveUser(
+                "EMP005", "Nom", "Medhi", "medhi.nom@entreprise.fr",
+                ContractType.PERMANENT_PART_TIME, Grade.JUNIOR, Role.EMPLOYE,
+                finance, devFrontend, "2800.00", "0643210987"
+        );
+
+        User chefSup = saveUser(
+                "EMP006", "Anonyme1", "CDP", "cdp@entreprise.fr",
+                ContractType.TEMPORARY_AGENCY, Grade.EXPERT, Role.CHEF_PROJET,
+                finance, chefProjet, "6000.00", "0600000000"
+        );
+
+        User chefRH = saveUser(
+                "EMP007", "Anonyme2", "RespoRH", "respoRh@entreprise.fr",
+                ContractType.TEMPORARY_AGENCY, Grade.SENIOR, Role.CHEF_DEPARTEMENT,
+                rh, responsableRH, "15000.00", "0624194672"
+        );
+
+        // ==========================
+        // PROJETS
+        // ==========================
+        Project siteWeb = projectRepository.save(
+                new Project("Refonte Site Web", jean_claude, "Refonte complète du site", Status.IN_PROGRESS)
+        );
+        Project mobileApp = projectRepository.save(
+                new Project("Application Mobile", haitam, "App mobile interne", Status.PLANNED)
+        );
+        Project cloudMigration = projectRepository.save(
+                new Project("Migration Cloud", jean_claude, "Migration AWS", Status.IN_PROGRESS)
+        );
+
+        // Assignations
+        siteWeb.getUsers().add(saad);
+        siteWeb.getUsers().add(jean_claude);
+
+        mobileApp.getUsers().add(haitam);
+        mobileApp.getUsers().add(medhi);
+
+        cloudMigration.getUsers().add(jean_claude);
+        cloudMigration.getUsers().add(medhi);
+
+        projectRepository.save(siteWeb);
+        projectRepository.save(mobileApp);
+        projectRepository.save(cloudMigration);
+
+        // ==========================
+        // FICHES DE PAIE
+        // ==========================
+        payslipRepository.save(new Payslip(2023, 11, new BigDecimal("500.00"), new BigDecimal("1000.00"), jean_claude));
+        payslipRepository.save(new Payslip(2024, 10, new BigDecimal("200.00"), new BigDecimal("600.00"), saad));
+        payslipRepository.save(new Payslip(2024, 10, new BigDecimal("1000.00"), new BigDecimal("1400.00"), adam));
+        payslipRepository.save(new Payslip(2023, 12, new BigDecimal("300.00"), new BigDecimal("800.00"), haitam));
+        payslipRepository.save(new Payslip(2024, 9, new BigDecimal("250.00"), new BigDecimal("650.00"), medhi));
+        payslipRepository.save(new Payslip(2024, 8, new BigDecimal("150.00"), new BigDecimal("350.00"), medhi));
+
+        System.out.println("🎉 Base initialisée avec succès !");
+    }
+
+    private User saveUser(
+            String matricule,
+            String lastName,
+            String firstName,
+            String email,
+            ContractType contractType,
+            Grade grade,
+            Role role,
+            Department dep,
+            Position pos,
+            String salary,
+            String phone
+    ) {
+        User u = new User();
+        u.setMatricule(matricule);
+        u.setLastName(lastName);
+        u.setFirstName(firstName);
+        u.setEmail(email);
+        u.setPassword(passwordEncoder.encode("motdepasse123"));
+        u.setContractType(contractType);
+        u.setGrade(grade);
+        u.setRole(role);
+        u.setDepartment(dep);
+        u.setPosition(pos);
+        u.setBaseSalary(new BigDecimal(salary));
+        u.setPhone(phone);
+        return userRepository.save(u);
     }
 }
