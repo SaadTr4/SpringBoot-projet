@@ -126,7 +126,7 @@ public class PayslipService {
         if (bonuses != null) payslip.setBonuses(bonuses);
         if (customDeductions != null) payslip.setCustom_deductions(customDeductions);
 
-        // Recalcul des déductions et du net pay
+        // Recalcule des déductions et du net pay.
         payslip.calculateDeductions();
         payslip.calculateNetPay();
 
