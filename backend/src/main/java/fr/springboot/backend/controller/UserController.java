@@ -21,6 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST controller for managing User operations.
+ * Provides endpoints for CRUD operations, user management, and profile image handling.
+ */
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -31,8 +35,15 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    // ========== UTILITAIRE : RÉCUPÉRER L'UTILISATEUR COURANT ==========
+    // ========== UTILITY: GET CURRENT USER ==========
 
+    /**
+     * Retrieves the current authenticated user from session.
+     *
+     * @param session the HTTP session
+     * @return the current user
+     * @throws RuntimeException if session is invalid or user not found
+     */
     private User getCurrentUser(HttpSession session) {
         Integer userId = (Integer) session.getAttribute("userId");
         if (userId == null) {
@@ -42,8 +53,14 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
     }
 
-    // ========== 1. LISTE TOUS LES UTILISATEURS ==========
+    // ========== 1. GET ALL USERS ==========
 
+    /**
+     * Retrieves all users with permission checks.
+     *
+     * @param session the HTTP session
+     * @return ResponseEntity with list of users or error
+     */
     @GetMapping
     public ResponseEntity<?> getAllUsers(HttpSession session) {
         try {
@@ -52,7 +69,7 @@ public class UserController {
 
             if (!permissions.canAccessUserList()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("voir la liste des utilisateurs")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("view user list")));
             }
 
             List<UserDTO> users = userService.getAllUsers();
@@ -64,8 +81,15 @@ public class UserController {
         }
     }
 
-    // ========== 2. DÉTAIL D'UN UTILISATEUR ==========
+    // ========== 2. GET USER BY ID ==========
 
+    /**
+     * Retrieves a specific user by ID with permission checks.
+     *
+     * @param id the user ID
+     * @param session the HTTP session
+     * @return ResponseEntity with user or error
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Integer id, HttpSession session) {
         try {
@@ -77,7 +101,7 @@ public class UserController {
 
             if (!permissions.canViewAllUsers() && !permissions.isSelfEdit()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("voir cet utilisateur")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("view this user")));
             }
 
             UserDTO user = userService.getUserById(id);
@@ -92,10 +116,15 @@ public class UserController {
         }
     }
 
+    // ========== 3. CREATE USER ==========
 
-
-    // ========== 4. CRÉER UN UTILISATEUR ==========
-
+    /**
+     * Creates a new user with permission and role validation.
+     *
+     * @param request the user registration request
+     * @param session the HTTP session
+     * @return ResponseEntity with created user or error
+     */
     @PostMapping
     public ResponseEntity<?> createUser(@Valid @RequestBody RegisterRequest request, HttpSession session) {
         try {
@@ -104,10 +133,10 @@ public class UserController {
 
             if (!permissions.canCreateUser()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("créer un utilisateur")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("create a user")));
             }
 
-            // Validation du rôle
+            // Role validation
             String roleError = permissions.validateRoleAssignment(request.getRole(), request.getDepartmentId());
             if (roleError != null) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -126,8 +155,16 @@ public class UserController {
         }
     }
 
-    // ========== 5. MODIFIER UN UTILISATEUR (POST AU LIEU DE PUT) ==========
+    // ========== 4. UPDATE USER (POST INSTEAD OF PUT) ==========
 
+    /**
+     * Updates an existing user with comprehensive permission checks.
+     *
+     * @param id the user ID to update
+     * @param request the updated user data
+     * @param session the HTTP session
+     * @return ResponseEntity with updated user or error
+     */
     @PostMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Integer id,
                                         @Valid @RequestBody RegisterRequest request,
@@ -139,7 +176,7 @@ public class UserController {
 
             RolePermissions permissions = new RolePermissions(currentUser, targetUser);
 
-            // Vérifier les permissions selon ce qui est modifié
+            // Check permissions based on what is being modified
             boolean needsPrivateInfoPerm = request.getMatricule() != null ||
                     request.getEmail() != null ||
                     request.getRole() != null;
@@ -148,17 +185,17 @@ public class UserController {
 
             if (needsPrivateInfoPerm && !permissions.canUpdatePrivateInfo()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("modifier les informations privées")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("modify private information")));
             }
 
             if (needsSalaryPerm && !permissions.canUpdateSalary()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("modifier le salaire")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("modify salary")));
             }
 
             if (!permissions.canUpdatePublicInfo() && !permissions.canUpdatePrivateInfo()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("modifier cet utilisateur")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("modify this user")));
             }
 
             UserDTO updatedUser = userService.updateUser(id, request);
@@ -173,8 +210,15 @@ public class UserController {
         }
     }
 
-    // ========== 6. SUPPRIMER UN UTILISATEUR ==========
+    // ========== 5. DELETE USER ==========
 
+    /**
+     * Deletes a user with permission checks.
+     *
+     * @param id the user ID to delete
+     * @param session the HTTP session
+     * @return ResponseEntity with success message or error
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Integer id, HttpSession session) {
         try {
@@ -186,7 +230,7 @@ public class UserController {
 
             if (!permissions.canDeleteUserWithTarget()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("supprimer cet utilisateur")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("delete this user")));
             }
 
             userService.deleteUser(id);
@@ -201,8 +245,16 @@ public class UserController {
         }
     }
 
-    // ========== 7. UPLOAD IMAGE ==========
+    // ========== 6. UPLOAD PROFILE IMAGE ==========
 
+    /**
+     * Uploads a profile image for a user.
+     *
+     * @param id the user ID
+     * @param file the image file
+     * @param session the HTTP session
+     * @return ResponseEntity with success message or error
+     */
     @PostMapping("/{id}/image")
     public ResponseEntity<?> uploadImage(@PathVariable Integer id,
                                          @RequestParam("image") MultipartFile file,
@@ -216,7 +268,7 @@ public class UserController {
 
             if (!permissions.canUpdatePublicInfo() && !permissions.isSelfEdit()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("modifier l'image")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("modify image")));
             }
 
             if (file.isEmpty()) {
@@ -224,7 +276,7 @@ public class UserController {
             }
 
             if (file.getSize() > 5 * 1024 * 1024) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Le fichier est trop volumineux (max 5MB)"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Fichier trop volumineux (max 5MB)"));
             }
 
             String contentType = file.getContentType();
@@ -235,19 +287,25 @@ public class UserController {
             targetUser.setProfileImage(file.getBytes());
             userRepository.save(targetUser);
 
-            return ResponseEntity.ok(Map.of("message", "Image uploadée avec succès"));
+            return ResponseEntity.ok(Map.of("message", "Image téléchargée avec succès"));
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Erreur lors de la lecture du fichier"));
+                    .body(Map.of("error", "Erreur de lecture du fichier"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Erreur serveur", "message", e.getMessage()));
         }
     }
 
-    // ========== 8. RÉCUPÉRER IMAGE ==========
+    // ========== 7. GET PROFILE IMAGE ==========
 
+    /**
+     * Retrieves the profile image for a user.
+     *
+     * @param id the user ID
+     * @return ResponseEntity with image data or 404 if not found
+     */
     @GetMapping("/{id}/image")
     public ResponseEntity<?> getImage(@PathVariable Integer id) {
         try {
@@ -267,8 +325,19 @@ public class UserController {
         }
     }
 
-    // ========== 9. RECHERCHE MULTICRITÈRE ==========
+    // ========== 8. SEARCH USERS ==========
 
+    /**
+     * Searches users with multiple criteria and permission checks.
+     *
+     * @param departmentId the department ID filter (optional)
+     * @param positionId the position ID filter (optional)
+     * @param role the role filter (optional)
+     * @param grade the grade filter (optional)
+     * @param searchText the text search filter (optional)
+     * @param session the HTTP session
+     * @return ResponseEntity with filtered users or error
+     */
     @GetMapping("/search")
     public ResponseEntity<?> searchUsers(
             @RequestParam(required = false) Integer departmentId,
@@ -283,7 +352,7 @@ public class UserController {
 
             if (!permissions.canAccessUserList()) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("error", permissions.getAccessDeniedMessage("rechercher des utilisateurs")));
+                        .body(Map.of("error", permissions.getAccessDeniedMessage("search users")));
             }
 
             List<UserDTO> users = userService.searchUsers(departmentId, positionId, role, grade, searchText);

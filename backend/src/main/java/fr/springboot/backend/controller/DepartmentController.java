@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Controller for managing departments and their associations with users
+ */
 @RestController
 @RequestMapping("/api/departments")
 public class DepartmentController {
@@ -25,11 +28,22 @@ public class DepartmentController {
 
     // -------------------- GET --------------------------
 
+    /**
+     * Retrieves all departments
+     *
+     * @return List of all departments
+     */
     @GetMapping
     public List<Department> getAll() {
         return departmentService.findAll();
     }
 
+    /**
+     * Retrieves a department by its ID
+     *
+     * @param id Department ID
+     * @return ResponseEntity with department or 404 if not found
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(@PathVariable Integer id) {
         return departmentService.findById(id)
@@ -37,11 +51,23 @@ public class DepartmentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    /**
+     * Retrieves all users belonging to a specific department
+     *
+     * @param id Department ID
+     * @return List of users in the department
+     */
     @GetMapping("/{id}/users")
     public List<User> getUsers(@PathVariable Integer id) {
         return departmentService.getUsers(id);
     }
 
+    /**
+     * Retrieves the head of a specific department
+     *
+     * @param id Department ID
+     * @return ResponseEntity with department head or 404 if not found
+     */
     @GetMapping("/{id}/head")
     public ResponseEntity<?> getHead(@PathVariable Integer id) {
         return departmentService.findDepartmentHead(id)
@@ -51,11 +77,17 @@ public class DepartmentController {
 
     // -------------------- POST --------------------------
 
+    /**
+     * Creates a new department
+     *
+     * @param department Department data to create
+     * @return ResponseEntity with created department or error if code exists
+     */
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Department department) {
 
         if (departmentService.findByCode(department.getCode()).isPresent()) {
-            return ResponseEntity.badRequest().body("Code already exists");
+            return ResponseEntity.badRequest().body("Code déjà existant");
         }
 
         return ResponseEntity.ok(departmentService.save(department));
@@ -63,6 +95,13 @@ public class DepartmentController {
 
     // -------------------- PUT --------------------------
 
+    /**
+     * Updates an existing department
+     *
+     * @param id Department ID to update
+     * @param data Updated department data
+     * @return ResponseEntity with updated department or 404 if not found
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Integer id, @RequestBody Department data) {
         Optional<Department> db = departmentService.findById(id);
@@ -79,11 +118,17 @@ public class DepartmentController {
 
     // -------------------- DELETE --------------------------
 
+    /**
+     * Deletes a department if it has no users
+     *
+     * @param id Department ID to delete
+     * @return ResponseEntity with success or error if department has users
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Integer id) {
 
         if (departmentService.countUsers(id) > 0)
-            return ResponseEntity.badRequest().body("Department still has users");
+            return ResponseEntity.badRequest().body("Le département contient encore des utilisateurs");
 
         departmentService.delete(id);
         return ResponseEntity.ok().build();
@@ -91,6 +136,13 @@ public class DepartmentController {
 
     // -------------------- ASSIGN / REMOVE --------------------------
 
+    /**
+     * Assigns a user to a department
+     *
+     * @param id Department ID
+     * @param matricule User matricule to assign
+     * @return ResponseEntity with success or error message
+     */
     @PostMapping("/{id}/assign")
     public ResponseEntity<?> assign(
             @PathVariable Integer id,
@@ -99,9 +151,16 @@ public class DepartmentController {
         if (departmentService.assignUserToDepartment(id, matricule))
             return ResponseEntity.ok().build();
 
-        return ResponseEntity.badRequest().body("Cannot assign user");
+        return ResponseEntity.badRequest().body("Impossible d'assigner l'utilisateur");
     }
 
+    /**
+     * Removes a user from a department
+     *
+     * @param id Department ID
+     * @param matricule User matricule to remove
+     * @return ResponseEntity with success or error message
+     */
     @PostMapping("/{id}/remove")
     public ResponseEntity<?> remove(
             @PathVariable Integer id,
@@ -110,6 +169,6 @@ public class DepartmentController {
         if (departmentService.removeUserFromDepartment(id, matricule))
             return ResponseEntity.ok().build();
 
-        return ResponseEntity.badRequest().body("Cannot remove user");
+        return ResponseEntity.badRequest().body("Impossible de retirer l'utilisateur");
     }
 }

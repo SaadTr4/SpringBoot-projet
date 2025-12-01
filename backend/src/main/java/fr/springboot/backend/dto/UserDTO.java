@@ -1,5 +1,9 @@
 package fr.springboot.backend.dto;
 
+/**
+ * DTO for user data transfer.
+ * Contains user information for frontend display and operations.
+ */
 public class UserDTO {
     private Integer id;
     private String matricule;
@@ -18,11 +22,14 @@ public class UserDTO {
     private String position;
     private Integer positionId;
 
-    // Constructeur vide
+    /**
+     * Default constructor
+     */
     public UserDTO() {
     }
 
-    // Getters et Setters COMPLETS
+    // GETTERS AND SETTERS
+
     public Integer getId() {
         return id;
     }

@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+/**
+ * Component for initializing sample data in the database on application startup.
+ * Creates departments, positions, users, projects, and payslips for testing.
+ */
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -22,6 +26,16 @@ public class DataInitializer implements CommandLineRunner {
 
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Constructor with dependency injection for all required repositories and services.
+     *
+     * @param userRepository the user repository
+     * @param departmentRepository the department repository
+     * @param positionRepository the position repository
+     * @param projectRepository the project repository
+     * @param payslipRepository the payslip repository
+     * @param passwordEncoder the password encoder
+     */
     public DataInitializer(
             UserRepository userRepository,
             DepartmentRepository departmentRepository,
@@ -38,94 +52,99 @@ public class DataInitializer implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    /**
+     * Executes on application startup to initialize sample data.
+     *
+     * @param args command line arguments
+     */
     @Override
     public void run(String... args) {
 
-        // ⚠️ STOP SI LA BASE CONTIENT DÉJÀ DES USERS !
+        // ⚠️ STOP IF DATABASE ALREADY CONTAINS USERS!
         if (userRepository.count() > 0) {
-            System.out.println("➡️ Base déjà initialisée, aucun chargement effectué.");
+            System.out.println("➡️ Base de données déjà initialisée, aucun chargement effectué.");
             return;
         }
 
-        System.out.println("🚀 Initialisation de la base Spring Boot...");
+        System.out.println("🚀 Initialisation de la base de données Spring Boot...");
 
         // ==========================
-        // DÉPARTEMENTS
+        // DEPARTMENTS
         // ==========================
-        Department informatique = departmentRepository.save(new Department("Informatique", "IT", "Gestion du SI et dev"));
-        Department rh = departmentRepository.save(new Department("Ressources Humaines", "RH", "Gestion RH"));
-        Department finance = departmentRepository.save(new Department("Finance", "FIN", "Finance & compta"));
+        Department informatique = departmentRepository.save(new Department("Département Informatique", "IT", "Gestion des systèmes informatiques et développement"));
+        Department rh = departmentRepository.save(new Department("Ressources Humaines", "RH", "Gestion des ressources humaines"));
+        Department finance = departmentRepository.save(new Department("Finance", "FIN", "Finance et comptabilité"));
 
         // ==========================
-        // POSTES
+        // POSITIONS
         // ==========================
         Position devBackend = positionRepository.save(new Position("Développeur Backend", "Développement backend"));
-        Position devFrontend = positionRepository.save(new Position("Développeur Frontend", "Interfaces UI"));
-        Position chefProjet = positionRepository.save(new Position("Chef de Projet", "Pilotage projet"));
-        Position chefDepartement = positionRepository.save(new Position("Chef de Département", "Responsable département"));
-        Position adminSystem = positionRepository.save(new Position("Administrateur Système", "Gestion systèmes"));
-        Position responsableRH = positionRepository.save(new Position("Responsable RH", "Gestion RH"));
+        Position devFrontend = positionRepository.save(new Position("Développeur Frontend", "Interfaces utilisateur"));
+        Position chefProjet = positionRepository.save(new Position("Chef de Projet", "Gestion de projet"));
+        Position chefDepartement = positionRepository.save(new Position("Chef de Département", "Responsabilité départementale"));
+        Position adminSystem = positionRepository.save(new Position("Administrateur Système", "Gestion des systèmes"));
+        Position responsableRH = positionRepository.save(new Position("Responsable RH", "Gestion des RH"));
 
         // ==========================
-        // UTILISATEURS
+        // USERS
         // ==========================
 
         User jean_claude = saveUser(
-                "EMP001", "Ilboudo", "Jean-Claude", "jean_claude.ilboudo@entreprise.fr",
+                "EMP001", "Ilboudo", "Jean-Claude", "jean_claude.ilboudo@company.com",
                 ContractType.APPRENTICESHIP, Grade.SENIOR, Role.CHEF_PROJET,
                 informatique, chefProjet, "4000.00", "0612345678"
         );
 
         User saad = saveUser(
-                "EMP002", "Tarmidi", "Saad", "saad.tarmidi@entreprise.fr",
+                "EMP002", "Tarmidi", "Saad", "saad.tarmidi@company.com",
                 ContractType.PERMANENT_FULL_TIME, Grade.JUNIOR, Role.EMPLOYE,
                 rh, devBackend, "3000.00", "0698765432"
         );
 
         User adam = saveUser(
-                "EMP003", "Swiczka", "Adam", "adam.swiczka@entreprise.fr",
+                "EMP003", "Swiczka", "Adam", "adam.swiczka@company.com",
                 ContractType.FIXED_TERM_FULL_TIME, Grade.EXPERT, Role.CHEF_DEPARTEMENT,
-                finance, chefDepartement, "5000000.00", "0678901234"
+                finance, chefDepartement, "5000.00", "0678901234"
         );
 
         User haitam = saveUser(
-                "EMP004", "Hania", "Haitam", "haitam.hania@entreprise.fr",
+                "EMP004", "Hania", "Haitam", "haitam.hania@company.com",
                 ContractType.PERMANENT_FULL_TIME, Grade.SENIOR, Role.ADMINISTRATEUR,
                 informatique, adminSystem, "4500.00", "0654321098"
         );
 
         User medhi = saveUser(
-                "EMP005", "Nom", "Medhi", "medhi.nom@entreprise.fr",
+                "EMP005", "Nom", "Medhi", "medhi.nom@company.com",
                 ContractType.PERMANENT_PART_TIME, Grade.JUNIOR, Role.EMPLOYE,
                 finance, devFrontend, "2800.00", "0643210987"
         );
 
         User chefSup = saveUser(
-                "EMP006", "Anonyme1", "CDP", "cdp@entreprise.fr",
+                "EMP006", "Anonyme1", "PM", "pm@company.com",
                 ContractType.TEMPORARY_AGENCY, Grade.EXPERT, Role.CHEF_PROJET,
                 finance, chefProjet, "6000.00", "0600000000"
         );
 
         User chefRH = saveUser(
-                "EMP007", "Anonyme2", "RespoRH", "respoRh@entreprise.fr",
+                "EMP007", "Anonyme2", "ResponsableRH", "responsablerh@company.com",
                 ContractType.TEMPORARY_AGENCY, Grade.SENIOR, Role.CHEF_DEPARTEMENT,
-                rh, responsableRH, "15000.00", "0624194672"
+                rh, responsableRH, "5000.00", "0624194672"
         );
 
         // ==========================
-        // PROJETS
+        // PROJECTS
         // ==========================
         Project siteWeb = projectRepository.save(
-                new Project("Refonte Site Web", jean_claude, "Refonte complète du site", Status.IN_PROGRESS)
+                new Project("Refonte du Site Web", jean_claude, "Refonte complète du site web", Status.IN_PROGRESS)
         );
         Project mobileApp = projectRepository.save(
-                new Project("Application Mobile", haitam, "App mobile interne", Status.PLANNED)
+                new Project("Application Mobile", haitam, "Application mobile interne", Status.PLANNED)
         );
         Project cloudMigration = projectRepository.save(
-                new Project("Migration Cloud", jean_claude, "Migration AWS", Status.IN_PROGRESS)
+                new Project("Migration Cloud", jean_claude, "Migration vers AWS", Status.IN_PROGRESS)
         );
 
-        // Assignations
+        // Assignments
         siteWeb.getUsers().add(saad);
         siteWeb.getUsers().add(jean_claude);
 
@@ -140,7 +159,7 @@ public class DataInitializer implements CommandLineRunner {
         projectRepository.save(cloudMigration);
 
         // ==========================
-        // FICHES DE PAIE
+        // PAYSLIPS
         // ==========================
         payslipRepository.save(new Payslip(2023, 11, new BigDecimal("500.00"), new BigDecimal("1000.00"), jean_claude));
         payslipRepository.save(new Payslip(2024, 10, new BigDecimal("200.00"), new BigDecimal("600.00"), saad));
@@ -149,9 +168,25 @@ public class DataInitializer implements CommandLineRunner {
         payslipRepository.save(new Payslip(2024, 9, new BigDecimal("250.00"), new BigDecimal("650.00"), medhi));
         payslipRepository.save(new Payslip(2024, 8, new BigDecimal("150.00"), new BigDecimal("350.00"), medhi));
 
-        System.out.println("🎉 Base initialisée avec succès !");
+        System.out.println("🎉 Base de données initialisée avec succès !");
     }
 
+    /**
+     * Helper method to create and save a user with the specified attributes.
+     *
+     * @param matricule the registration number
+     * @param lastName the last name
+     * @param firstName the first name
+     * @param email the email address
+     * @param contractType the contract type
+     * @param grade the grade
+     * @param role the role
+     * @param dep the department
+     * @param pos the position
+     * @param salary the base salary
+     * @param phone the phone number
+     * @return the saved user
+     */
     private User saveUser(
             String matricule,
             String lastName,
@@ -170,7 +205,7 @@ public class DataInitializer implements CommandLineRunner {
         u.setLastName(lastName);
         u.setFirstName(firstName);
         u.setEmail(email);
-        u.setPassword(passwordEncoder.encode("motdepasse123"));
+        u.setPassword(passwordEncoder.encode("password123"));
         u.setContractType(contractType);
         u.setGrade(grade);
         u.setRole(role);

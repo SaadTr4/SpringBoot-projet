@@ -1,34 +1,32 @@
 package fr.springboot.backend.dto;
 
-
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
- *  DTO LOGIN REQUEST : Données de connexion
+ * DTO for login request containing user credentials.
+ * Used when frontend sends login data to backend.
  *
- *  UTILISATION : Frontend envoie ce JSON au backend
- *
- * EXEMPLE DE REQUÊTE :
+ * EXAMPLE REQUEST:
  * POST /api/auth/login
  * {
  *   "matricule": "EMP1A42B",
- *   "password": "motdepasse123"
+ *   "password": "password123"
  * }
  */
 @Data
 public class LoginRequest {
 
     /**
-     *  Matricule de l'employé
+     * Employee registration number
      *
-     * @NotBlank : Ne peut pas être vide ou null
+     * @NotBlank : Cannot be empty or null
      */
     @NotBlank(message = "Le matricule est obligatoire")
     private String matricule;
 
     /**
-     * 🔒 Mot de passe (sera comparé avec le hash en BDD)
+     * Password (will be compared with hash in database)
      */
     @NotBlank(message = "Le mot de passe est obligatoire")
     private String password;

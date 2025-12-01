@@ -21,6 +21,10 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
+/**
+ * Service class for managing user operations.
+ * Provides business logic for user management, registration, and search functionality.
+ */
 @Service
 public class UserService {
 
@@ -40,21 +44,25 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    //  GÉNÉRATION MATRICULE FORMAT JEE : EMP2F37Q
+    /**
+     * Generates a unique registration number in format: EMP2F37Q
+     *
+     * @return Generated registration number
+     */
     public String generateMatricule() {
         try {
-            // 1. Récupérer la séquence PostgreSQL
+            // 1. Get PostgreSQL sequence value
             Long seq = userRepository.getNextMatriculeSequence();
 
-            // 2. Générer deux lettres aléatoires
+            // 2. Generate two random letters
             Random random = new Random();
             char letter1 = (char) ('A' + random.nextInt(26));
             char letter2 = (char) ('A' + random.nextInt(26));
 
-            // 3. Générer un nombre aléatoire entre 1 et 99
+            // 3. Generate random number between 1 and 99
             int number = random.nextInt(99) + 1;
 
-            // 4. Assembler : EMP{seq}{lettre1}{nombre}{lettre2}
+            // 4. Assemble: EMP{seq}{letter1}{number}{letter2}
             String matricule = String.format("EMP%d%c%02d%c", seq, letter1, number, letter2);
 
             System.out.println(" Matricule généré : " + matricule);
@@ -68,7 +76,12 @@ public class UserService {
         }
     }
 
-    //  CONVERSION User → UserDTO
+    /**
+     * Converts User entity to UserDTO
+     *
+     * @param user User entity
+     * @return UserDTO object
+     */
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
@@ -105,7 +118,11 @@ public class UserService {
         return dto;
     }
 
-    //  GET ALL USERS
+    /**
+     * Retrieves all users as DTOs
+     *
+     * @return List of all users as UserDTO
+     */
     public List<UserDTO> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream()
@@ -113,18 +130,29 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
-    //  GET USER BY ID
+    /**
+     * Retrieves a user by ID as DTO
+     *
+     * @param id User ID
+     * @return UserDTO object
+     * @throws RuntimeException if user not found
+     */
     public UserDTO getUserById(Integer id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'ID: " + id));
         return convertToDTO(user);
     }
 
-    // CREATE USER
-    // CREATE USER
+    /**
+     * Creates a new user with validation and automatic registration number generation
+     *
+     * @param request User registration request
+     * @return Created user as DTO
+     * @throws RuntimeException if validation fails or resources not found
+     */
     public UserDTO createUser(RegisterRequest request) {
 
-        //  VALIDATION MANUELLE POUR CREATE (champs obligatoires)
+        // Manual validation for required fields
         if (request.getLastName() == null || request.getLastName().isBlank()) {
             throw new RuntimeException("Le nom est obligatoire");
         }
@@ -144,15 +172,15 @@ public class UserService {
             throw new RuntimeException("Le type de contrat est obligatoire");
         }
 
-        //  GÉNÉRER AUTOMATIQUEMENT LE MATRICULE
+        // Generate automatic registration number
         String matricule = generateMatricule();
 
-        // Vérifier si l'email existe déjà
+        // Check if email already exists
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("L'email existe déjà");
         }
 
-        // Créer le nouvel utilisateur
+        // Create new user
         User user = new User();
         user.setMatricule(matricule);
         user.setLastName(request.getLastName());
@@ -168,31 +196,39 @@ public class UserService {
             user.setBaseSalary(BigDecimal.valueOf(request.getBaseSalary()));
         }
 
-        // Mot de passe par défaut
+        // Default password
         user.setPassword(passwordEncoder.encode("motdepasse123"));
 
-        // Assigner le département
+        // Assign department
         if (request.getDepartmentId() != null) {
             Department department = departmentRepository.findById(request.getDepartmentId())
                     .orElseThrow(() -> new RuntimeException("Département non trouvé"));
             user.setDepartment(department);
         }
 
-        // Assigner la position
+        // Assign position
         if (request.getPositionId() != null) {
             Position position = positionRepository.findById(request.getPositionId())
                     .orElseThrow(() -> new RuntimeException("Poste non trouvé"));
             user.setPosition(position);
         }
 
-        // Sauvegarder l'utilisateur
+        // Save user
         User savedUser = userRepository.save(user);
 
         System.out.println(" Utilisateur créé avec matricule auto-généré : " + matricule);
 
         return convertToDTO(savedUser);
     }
-    //  UPDATE USER
+
+    /**
+     * Updates an existing user
+     *
+     * @param id User ID to update
+     * @param request Updated user data
+     * @return Updated user as DTO
+     * @throws RuntimeException if user not found or validation fails
+     */
     public UserDTO updateUser(Integer id, RegisterRequest request) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
@@ -239,7 +275,12 @@ public class UserService {
         return convertToDTO(updatedUser);
     }
 
-    // DELETE USER
+    /**
+     * Deletes a user by ID
+     *
+     * @param id User ID to delete
+     * @throws RuntimeException if user not found
+     */
     public void deleteUser(Integer id) {
         if (!userRepository.existsById(id)) {
             throw new RuntimeException("Utilisateur non trouvé");
@@ -247,7 +288,16 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
-    //  RECHERCHE MULTICRITÈRE
+    /**
+     * Searches users with multiple criteria
+     *
+     * @param departmentId Department ID filter (optional)
+     * @param positionId Position ID filter (optional)
+     * @param roleStr Role filter (optional)
+     * @param gradeStr Grade filter (optional)
+     * @param searchText Text search filter (optional)
+     * @return List of filtered users as DTO
+     */
     public List<UserDTO> searchUsers(Integer departmentId, Integer positionId,
                                      String roleStr, String gradeStr, String searchText) {
         List<User> users = userRepository.findAll();

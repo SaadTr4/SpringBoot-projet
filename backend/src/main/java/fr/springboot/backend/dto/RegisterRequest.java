@@ -7,6 +7,10 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+/**
+ * DTO for user registration and update requests.
+ * Contains all user information needed for creating or updating a user account.
+ */
 public class RegisterRequest {
 
     private String matricule;
@@ -30,8 +34,11 @@ public class RegisterRequest {
     private Integer departmentId;
     private Integer positionId;
 
-    // ========== CONSTRUCTEURS ==========
+    // ========== CONSTRUCTORS ==========
 
+    /**
+     * Default constructor
+     */
     public RegisterRequest() {}
 
     // ========== GETTERS & SETTERS ==========

@@ -13,6 +13,11 @@ import jakarta.persistence.FetchType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+
+/**
+ * Entity class representing a user in the system.
+ * Maps to the "user_account" table in the database.
+ */
 @Entity
 @Table(name = "user_account")
 public class User {
@@ -21,57 +26,101 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    /**
+     * Unique registration number for the user
+     */
     @Column(name = "registration_number", unique = true, nullable = false, length = 20)
     private String matricule;
 
+    /**
+     * User's last name
+     */
     @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
+    /**
+     * User's first name
+     */
     @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
+    /**
+     * User's email address
+     */
     @Column(unique = true, nullable = false, length = 100)
     private String email;
 
+    /**
+     * Encrypted password
+     */
     @Column(nullable = false)
     private String password;
 
+
+    /**
+     * Phone number
+     */
     @Column(length = 20)
     private String phone;
 
+    /**
+     * Physical address
+     */
     @Column(length = 200)
     private String address;
 
+    /**
+     * Professional grade
+     */
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private Grade grade;
 
+    /**
+     * User role in the system
+     */
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private Role role;
 
+    /**
+     * Type of employment contract
+     */
     @Enumerated(EnumType.STRING)
     @Column(name = "contract_type", length = 30)
     private ContractType contractType;
 
+    /**
+     * Base salary amount
+     */
     @Column(name = "base_salary", precision = 10, scale = 2)
     private BigDecimal baseSalary;
 
+    /**
+     * Department the user belongs to
+     */
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
 
+    /**
+     * Job position of the user
+     */
     @ManyToOne
     @JoinColumn(name = "position_id")
     private Position position;
 
-    // AJOUT DU CHAMP IMAGE
-    //  APRÈS - FORCE BYTEA EXPLICITEMENT
+    /**
+     * Profile image stored as binary data
+     */
     @Column(name = "image", columnDefinition = "bytea")
     @Basic(fetch = FetchType.LAZY)
     @JdbcTypeCode(SqlTypes.BINARY)
     private byte[] profileImage;
 
+    /**
+     * Projects assigned to the user
+     */
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "user_project",
@@ -83,8 +132,21 @@ public class User {
 
     // ========== CONSTRUCTEURS ==========
 
+    /**
+     * Default constructor
+     */
     public User() {}
 
+    /**
+     * Constructor with basic user information
+     *
+     * @param matricule Registration number
+     * @param lastName Last name
+     * @param firstName First name
+     * @param email Email address
+     * @param password Encrypted password
+     * @param role User role
+     */
     public User(String matricule, String lastName, String firstName, String email, String password, Role role) {
         this.matricule = matricule;
         this.lastName = lastName;
@@ -128,6 +190,11 @@ public class User {
         this.firstName = firstName;
     }
 
+    /**
+     * Gets the full name of the user (first name + last name)
+     *
+     * @return Full name
+     */
     public String getFullName() {
         return firstName + " " + lastName;
     }

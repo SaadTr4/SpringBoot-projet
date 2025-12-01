@@ -9,19 +9,42 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Repository interface for User entity.
+ * Provides CRUD operations and custom queries for user management.
+ */
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    // Trouver un utilisateur par matricule
+    /**
+     * Finds a user by their registration number
+     *
+     * @param matricule User registration number
+     * @return Optional containing the user if found
+     */
     Optional<User> findByMatricule(String matricule);
 
-    // Trouver un utilisateur par email
+    /**
+     * Finds a user by their email address
+     *
+     * @param email User email address
+     * @return Optional containing the user if found
+     */
     Optional<User> findByEmail(String email);
 
-    //  Trouver tous les utilisateurs par rôle
+    /**
+     * Finds all users with a specific role
+     *
+     * @param role User role
+     * @return List of users with the specified role
+     */
     List<User> findByRole(Role role);
 
-    // Récupérer la prochaine valeur de la séquence pour générer un matricule
+    /**
+     * Gets the next value from the sequence for generating registration numbers
+     *
+     * @return Next sequence value
+     */
     @Query(value = "SELECT nextval('emp_seq')", nativeQuery = true)
     Long getNextMatriculeSequence();
 }

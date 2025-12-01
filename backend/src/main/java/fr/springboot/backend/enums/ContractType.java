@@ -1,5 +1,9 @@
 package fr.springboot.backend.enums;
 
+/**
+ * Enumeration representing different types of employment contracts.
+ * Each contract type has a display name for user interface representation.
+ */
 public enum ContractType {
     PERMANENT_FULL_TIME("CDI"),
     PERMANENT_PART_TIME("CDI temps partiel"),
@@ -20,8 +24,12 @@ public enum ContractType {
         this.displayName = displayName;
     }
 
+    /**
+     * Gets the display name of the contract type for user interface.
+     *
+     * @return the display name
+     */
     public String getDisplayName() {
         return displayName;
     }
 }
-
