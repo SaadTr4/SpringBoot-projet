@@ -49,11 +49,8 @@ public class Payslip implements Serializable {
     @Column(name = "net_pay", precision = 10, scale = 2)
     private BigDecimal netPay;
 
-    @Column(name = "registration_number")
-    private String registrationNumber;
-
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "registration_number", referencedColumnName = "registration_number", insertable = false, updatable = false)
+    @JoinColumn(name = "registration_number", referencedColumnName = "registration_number")
     private User user;
 
 
@@ -133,9 +130,6 @@ public class Payslip implements Serializable {
     public void setNetPay(BigDecimal netPay) { this.netPay = netPay; }
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
-
-    public String registrationNumber(){ return registrationNumber;}
-    public void setRegistrationNumber(String registrationNumber) { this.registrationNumber = registrationNumber;}
 
     /**
      * Formats the generation date as string

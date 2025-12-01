@@ -3,7 +3,7 @@
   color: white;
 }
 
-/* ===== Glass Card ===== */
+/* Glass cards */
 .glass-card {
   background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.28);
@@ -11,10 +11,9 @@
   backdrop-filter: blur(14px);
   padding: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
 
-/* Header interne */
 .welcome-card {
   display: flex;
   justify-content: space-between;
@@ -33,9 +32,7 @@
 }
 
 /* Buttons */
-.welcome-logout,
-.btn-action,
-.btn-delete {
+.welcome-logout, .btn-action, .btn-delete {
   padding: 8px 14px;
   border-radius: 10px;
   border: none;
@@ -45,8 +42,7 @@
   font-size: 0.85rem;
 }
 
-.welcome-logout,
-.btn-action {
+.welcome-logout, .btn-action {
   background: linear-gradient(135deg, #3b82f6, #06b6d4);
 }
 
@@ -54,7 +50,7 @@
   background: #ef4444;
 }
 
-/* ===== Table ===== */
+/* Table */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -69,49 +65,122 @@ th {
 
 td {
   padding: 12px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  border-bottom: 1px solid rgba(255,255,255,0.18);
 }
 
 tr:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255,255,255,0.08);
 }
 
-.actions {
-  display: flex;
-  gap: 8px;
+.actions button {
+  border-radius: 10px;
+  font-weight: 600;
+  padding: 4px 8px;
+  font-size: 1rem;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.25);
 }
 
-/* ===== Modal ===== */
+.actions .btn-edit { background:#3b82f6; color:#fff; }
+.actions .btn-pdf  { background:#60a5fa; color:#fff; }
+.actions .btn-delete { background:#ef4444; color:#fff; }
+
+/* Modal */
 .modal-layer {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 300;
-}
-
-.modal-layer.open {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  z-index: 999;
 }
 
 .modal-box {
-  background: rgba(255, 255, 255, 0.12);
-  padding: 20px;
-  border-radius: 16px;
-  width: 400px;
-  backdrop-filter: blur(12px);
-  color: #fff;
+  width: 520px;
+  padding: 30px;
+  border-radius: 22px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.28);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 25px 45px rgba(0,0,0,0.35);
+  color: white;
 }
 
-.input {
+.modal-box h3 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: white;
+}
+
+.modal-box input,
+.modal-box select {
   width: 100%;
   max-width: 95%;
   padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
+  margin-bottom: 14px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.23);
+  border: 1px solid rgba(255,255,255,0.45);
   color: white;
+  font-size: 1.05rem;
+  backdrop-filter: blur(8px);
+}
+
+.modal-box input::placeholder {
+  color: rgba(240,240,240,0.85);
+}
+
+.modal-box select option {
+  background: rgba(20,20,20,0.9);
+  color: white;
+}
+
+.modal-box button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  border: none;
+}
+
+.modal-box button.save {
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  color: white;
+}
+
+.modal-box button.cancel {
+  background: #ef4444;
+  color: white;
+  margin-top: 12px;
+}
+
+/* Filter inputs */
+.filter-card input,
+.filter-card select {
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.filter-card select option {
+  background: rgba(20,20,20,0.9);
+  color: white;
+}
+
+/* Readonly inputs */
+input[readonly] {
+  background: rgba(255,255,255,0.1);
+  cursor: not-allowed;
+  opacity: 0.8;
+  border: 1px solid rgba(255,255,255,0.3);
 }
