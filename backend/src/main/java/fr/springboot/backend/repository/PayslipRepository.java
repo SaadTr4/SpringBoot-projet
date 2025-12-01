@@ -16,12 +16,7 @@ public interface PayslipRepository extends JpaRepository<Payslip, Integer> {
     @Query("SELECT p FROM Payslip p WHERE p.user.id = :userId")
     List<Payslip> findByUserId(Integer userId);
 
-    @Query("""
-            SELECT COUNT(p) FROM Payslip p
-            WHERE p.user = :user
-              AND p.year = :year
-              AND p.month = :month
-          """)
+    @Query("SELECT COUNT(p) FROM Payslip p WHERE p.user = :user AND p.year = :year AND p.month = :month")
     long existsPayslipForUserAndMonth(User user, int year, int month);
 
     @Query("""

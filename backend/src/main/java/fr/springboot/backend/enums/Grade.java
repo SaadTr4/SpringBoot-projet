@@ -1,9 +1,7 @@
 package fr.springboot.backend.enums;
 
 public enum Grade {
-    STAGIAIRE("Stagiaire"),
     JUNIOR("Junior"),
-    INTERMEDIAIRE("Intermédiaire"),
     SENIOR("Senior"),
     EXPERT("Expert");
 

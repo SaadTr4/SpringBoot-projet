@@ -18,7 +18,7 @@
       <option value="">Tous</option>
       <option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="m">{{ m }}</option>
     </select>
-        <button (click)="filterPayslips(matricule.value, year.valueAsNumber, +month.value)">Filtrer</button>
+      <button (click)="filterPayslips( matricule.value || undefined, year.valueAsNumber || undefined,  +month.value || undefined)">Filtrer</button>
     <button (click)="loadPayslips()">Réinitialiser</button>
   </div>
 
@@ -43,7 +43,7 @@
           <td>{{ p.salaireBase }}</td>
           <td>{{ p.prime }}</td>
           <td>{{ p.deduction }}</td>
-          <td>{{ p.total }}</td>
+          <td>{{ getTotal(p) }}</td>
           <td>
             <button (click)="openModal('edit', p)">Modifier</button>
             <button (click)="deletePayslip(p)">Supprimer</button>

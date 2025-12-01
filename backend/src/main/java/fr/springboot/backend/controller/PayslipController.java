@@ -1,5 +1,6 @@
 package fr.springboot.backend.controller;
 
+import fr.springboot.backend.dto.PayslipDTO;
 import fr.springboot.backend.model.Payslip;
 import fr.springboot.backend.service.PayslipService;
 import org.springframework.web.bind.annotation.*;
@@ -18,23 +19,24 @@ public class PayslipController {
     }
 
     @GetMapping
-    public List<Payslip> getAll() {
-        return payslipService.findAll();
+    public List<PayslipDTO> getAll() {
+        return payslipService.findAllDTO();
     }
 
     @GetMapping("/user/{id}")
-    public List<Payslip> getByUserId(@PathVariable Integer id) {
-        return payslipService.findByUserId(id);
+    public List<PayslipDTO> getByUserId(@PathVariable Integer id) {
+        return payslipService.findByUserIdDTO(id);
     }
 
     @GetMapping("/filter")
-    public List<Payslip> filter(
+    public List<PayslipDTO> filter(
             @RequestParam(required = false) String matricule,
             @RequestParam(required = false) Integer year,
             @RequestParam(required = false) Integer month
     ) {
-        return payslipService.findFiltered(matricule, year, month);
+        return payslipService.findFilteredDTO(matricule, year, month);
     }
+
 
     @PostMapping("/create")
     public Payslip create(

@@ -1,5 +1,6 @@
 package fr.springboot.backend.service;
 
+import fr.springboot.backend.dto.PayslipDTO;
 import fr.springboot.backend.model.Payslip;
 import fr.springboot.backend.model.User;
 import fr.springboot.backend.repository.PayslipRepository;
@@ -41,25 +42,35 @@ public class PayslipService {
     }
 
     public Payslip createPayslip(String matricule, Integer year, Integer month,
-                                 BigDecimal bonuses, BigDecimal deductions) {
+                                 BigDecimal bonuses, BigDecimal customDeductions) {
 
-        User user = userRepository.findByMatricule(matricule).orElseThrow();
+        User user = userRepository.findByMatricule(matricule)
+                .orElseThrow(() -> new IllegalArgumentException("Utilisateur non trouvé"));
 
         if (existsPayslipForUserAndMonth(user, year, month)) {
-            throw new IllegalArgumentException("Payslip already exists for this month/year");
+            throw new IllegalArgumentException("Fiche de paie déjà existante pour ce mois/année");
         }
 
-        Payslip payslip = new Payslip(year, month, bonuses, deductions, user);
+        Payslip payslip = new Payslip(year, month, bonuses, customDeductions, user);
+        payslip.setRegistrationNumber(user.getMatricule());
+
+        // Assure que les montants sont bien calculés
+        payslip.calculateDeductions();
+        payslip.calculateNetPay();
+
         return payslipRepository.save(payslip);
     }
 
-    public Payslip updatePayslip(Integer id, BigDecimal bonuses, BigDecimal deductions) {
+    public Payslip updatePayslip(Integer id, BigDecimal bonuses, BigDecimal customDeductions) {
 
         Payslip payslip = payslipRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Payslip not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Fiche de paie non trouvée"));
 
-        payslip.setBonuses(bonuses);
-        payslip.setDeductions(deductions);
+        if (bonuses != null) payslip.setBonuses(bonuses);
+        if (customDeductions != null) payslip.setCustom_deductions(customDeductions);
+
+        // Recalcul des déductions et du net pay
+        payslip.calculateDeductions();
         payslip.calculateNetPay();
 
         return payslipRepository.save(payslip);
@@ -68,4 +79,52 @@ public class PayslipService {
     public void deletePayslip(Integer id) {
         payslipRepository.deleteById(id);
     }
+
+    // ========================
+    // Conversion vers DTO
+    // ========================
+    private PayslipDTO toDTO(Payslip p) {
+        // recalcul si nécessaire
+        if (p.getBaseSalary() == null) p.setBaseSalary(p.getUser() != null && p.getUser().getBaseSalary() != null ? p.getUser().getBaseSalary() : BigDecimal.ZERO);
+        if (p.getBonuses() == null) p.setBonuses(BigDecimal.ZERO);
+        if (p.getDeductions() == null) p.setDeductions(BigDecimal.ZERO);
+
+        // recalcul net pay
+        p.calculateNetPay();
+
+        String nom = p.getUser() != null
+                ? p.getUser().getFirstName() + " " + p.getUser().getLastName()
+                : "";
+
+        return new PayslipDTO(
+                p.getId(),
+                p.getMonth(),
+                p.getYear(),
+                p.getBaseSalary(),
+                p.getBonuses(),
+                p.getDeductions(),
+                nom
+        );
+    }
+
+
+    public List<PayslipDTO> findAllDTO() {
+        return findAll().stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    public List<PayslipDTO> findByUserIdDTO(Integer id) {
+        return findByUserId(id).stream()
+                .map(this::toDTO)
+                .toList();
+    }
+
+    public List<PayslipDTO> findFilteredDTO(String matricule, Integer year, Integer month) {
+        return findFiltered(matricule, year, month).stream()
+                .map(this::toDTO)
+                .toList();
+    }
 }
+
+

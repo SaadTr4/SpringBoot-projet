@@ -1,69 +1,105 @@
 <div class="page-wrapper">
 
-  <!-- Header interne -->
+  <!-- Header -->
   <div class="glass-card welcome-card">
     <div class="welcome-left">
       <div>
         <h2 class="welcome-title">Liste des projets</h2>
-        <p class="welcome-sub">Connecté en tant que {{ username }}</p>
+        <p class="welcome-sub">Connecté en tant que {{ currentUser?.firstName }} {{ currentUser?.lastName }}</p>
       </div>
     </div>
-    <button class="welcome-logout" (click)="openModal('add')">+ Ajouter</button>
+    <button *ngIf="canAdd" class="welcome-logout" (click)="openModal('add')">+ Ajouter</button>
   </div>
+
+<!-- Filtre projets -->
+<div class="glass-card" *ngIf="canAdd || canEdit">
+  <h3 style="margin-bottom: 16px; color: #fff;">Filtrer les projets</h3>
+  <form (ngSubmit)="applyFilter()">
+    <div class="search-grid">
+      <div class="search-field">
+        <label>Nom du projet</label>
+        <input class="input" [(ngModel)]="filterName" name="filterName" placeholder="Ex: Projet Alpha">
+      </div>
+
+      <div class="search-field">
+        <label>Chef de projet</label>
+        <select class="input" [(ngModel)]="filterManagerId" name="filterManagerId">
+          <option value="">Tous</option>
+          <option *ngFor="let u of users" [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
+        </select>
+      </div>
+
+      <div class="search-field">
+        <label>Statut</label>
+        <select class="input" [(ngModel)]="filterStatus" name="filterStatus">
+          <option value="">Tous</option>
+          <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="button-container">
+      <button class="btn-action" type="submit">Filtrer</button>
+      <button type="button" class="btn-delete" (click)="resetFilter()">Réinitialiser</button>
+    </div>
+  </form>
+</div>
+
 
   <!-- Tableau -->
   <div class="glass-card table-card">
     <table>
       <thead>
-      <tr>
-        <th>ID</th>
-        <th>Nom du projet</th>
-        <th>Chef de projet</th>
-        <th>Statut</th>
-        <th>Employés affectés</th>
-        <th>Actions</th>
-      </tr>
+        <tr>
+          <th>ID</th>
+          <th>Nom du projet</th>
+          <th>Chef de projet</th>
+          <th>Statut</th>
+          <th>Actions</th>
+        </tr>
       </thead>
-
       <tbody>
-      <tr *ngFor="let p of projects">
-        <td>{{ p.id }}</td>
-        <td>{{ p.name }}</td>
-        <td>{{ p.projectManager }}</td>
-        <td>{{ p.status }}</td>
-        <td class="actions">
-        <button class="btn-action" (click)="openModal('edit', p)">Modifier</button>
-        <button class="btn-delete">Supprimer</button>
-        </td>
-      </tr>
+        <tr *ngFor="let p of filteredProjects">
+          <td>{{ p.id }}</td>
+          <td>{{ p.name }}</td>
+          <td>{{ p.projectManagerName || '-' }}</td>
+          <td>{{ getStatusLabel(p.status) }}</td>
+          <td class="actions">
+            <button *ngIf="canEdit" class="btn-action" (click)="openModal('edit', p)">Modifier</button>
+            <button *ngIf="canDelete" class="btn-delete" (click)="deleteProject(p.id!)">Supprimer</button>
+          </td>
+        </tr>
       </tbody>
     </table>
   </div>
-
 </div>
 
-<!-- Modal Ajouter -->
-<div class="modal-layer" [class.open]="modalOpen">
-  <div class="modal-box">
-    <h3>Ajouter un projet</h3>
+<!-- Modal Ajouter / Modifier -->
+<div class="modal-layer" [class.open]="modalOpen" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <h3>{{ modalMode === 'add' ? 'Ajouter un projet' : 'Modifier un projet' }}</h3>
 
-    <form>
-      <input class="input" placeholder="Nom du projet" />
-      <input class="input" placeholder="Chef de projet" />
+    <form #projectForm="ngForm" (ngSubmit)="saveProject(projectForm)">
+      <input class="input" placeholder="Nom du projet" [(ngModel)]="selectedProject.name" name="name" required />
 
-      <select [(ngModel)]="selectedProject.projectManager" name="manager">
-        <option *ngFor="let u of users" [ngValue]="u">{{ u.firstName }} {{ u.lastName }}</option>
+      <label style="margin-top:10px; display:block;">Chef de projet</label>
+      <select 
+        [(ngModel)]="selectedProject.projectManagerId" 
+        name="manager" 
+        class="input" 
+        required
+      >
+        <option value="" disabled selected>-- Sélectionnez un chef de projet --</option>
+        <option *ngFor="let u of users" [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
       </select>
 
-      <select [(ngModel)]="selectedProject.status" name="status">
-        <option value="IN_PROGRESS">En cours</option>
-        <option value="COMPLETED">Terminé</option>
-        <option value="CANCELLED">Annulé</option>
-        <option value="PLANNED">Planifié</option>
+      <label style="margin-top:10px; display:block;">Statut</label>
+      <select [(ngModel)]="selectedProject.status" name="status" class="input">
+        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
       </select>
 
       <div class="button-container">
-        <button class="welcome-logout" type="submit">Enregistrer</button>
+        <button class="btn-action" type="submit">{{ modalMode === 'add' ? 'Enregistrer' : 'Mettre à jour' }}</button>
         <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
       </div>
     </form>

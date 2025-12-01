@@ -5,7 +5,9 @@ import { User } from '../model/user.model';
 import { Project } from '../model/project.model';
 import { Department } from '../model/department.model';
 import { Position } from '../model/position.model';
-import { Payslip } from '../model/payslip.model';
+import { PayslipDTO , PayslipDisplay} from '../model/payslip.model';
+import { map } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +52,12 @@ export class ApiService {
   createUser(user: User): Observable<User> {
     return this.http.post<User>(`${this.baseUrl}/users`, user, this.getHttpOptions());
   }
+
+  getUserImageUrl(userId: number): string {
+  // Ajoute un cache-buster pour forcer le reload
+  return `http://localhost:8080/api/users/${userId}/image?t=${new Date().getTime()}`;
+}
+
 
   updateUser(id: number, user: Partial<User>): Observable<User> {
     return this.http.post<User>(`${this.baseUrl}/users/${id}`, user, this.getHttpOptions());
@@ -170,47 +178,93 @@ removeUserFromPosition(id: number, matricule: string): Observable<any> {
   return this.http.post(`${this.baseUrl}/positions/${id}/remove?matricule=${matricule}`, {}, this.getHttpOptions());
 }
 
-// ===== Fiches de paie =====
-getPayslips(): Observable<Payslip[]> {
-  return this.http.get<Payslip[]>(`${this.baseUrl}/payslips`, this.getHttpOptions());
+ // ===== Fiches de paie =====
+getPayslips(): Observable<PayslipDisplay[]> {
+  return this.http.get<PayslipDTO[]>(`${this.baseUrl}/payslips`, this.getHttpOptions()).pipe(
+    map(res => res.map(p => ({
+      id: p.id,
+      employeNom: p.employeNom ?? '',
+      salaireBase: p.baseSalary ?? 0,
+      prime: p.bonuses ?? 0,
+      deduction: p.deductions ?? 0,
+      year: p.year,
+      month: p.month
+    })))
+  );
 }
 
-getPayslipsByUser(userId: number): Observable<Payslip[]> {
-  return this.http.get<Payslip[]>(`${this.baseUrl}/payslips/user/${userId}`, this.getHttpOptions());
+getPayslipsByUser(userId: number): Observable<PayslipDisplay[]> {
+  return this.http.get<PayslipDTO[]>(`${this.baseUrl}/payslips/user/${userId}`, this.getHttpOptions()).pipe(
+    map(res => res.map(p => ({
+      id: p.id,
+      employeNom: p.employeNom ?? '',
+      salaireBase: p.baseSalary ?? 0,
+      prime: p.bonuses ?? 0,
+      deduction: p.deductions ?? 0,
+      year: p.year,
+      month: p.month
+    })))
+  );
 }
 
-filterPayslips(params: any): Observable<Payslip[]> {
-  return this.http.get<Payslip[]>(`${this.baseUrl}/payslips/filter`, {
-    ...this.getHttpOptions(),
-    params
-  });
+filterPayslips(params: any): Observable<PayslipDisplay[]> {
+  return this.http.get<PayslipDTO[]>(`${this.baseUrl}/payslips/filter`, { ...this.getHttpOptions(), params }).pipe(
+    map(res => res.map(p => ({
+      id: p.id,
+      employeNom: p.employeNom ?? '',
+      salaireBase: p.baseSalary ?? 0,
+      prime: p.bonuses ?? 0,
+      deduction: p.deductions ?? 0,
+      year: p.year,
+      month: p.month
+    })))
+  );
 }
 
-createPayslip(payslip: Payslip): Observable<Payslip> {
-  const body = {
-    matricule: payslip.userId,
-    year: payslip.year,
-    month: payslip.month,
-    bonuses: payslip.prime,
-    deductions: payslip.deduction
+createPayslip(payslip: PayslipDisplay): Observable<PayslipDisplay> {
+  const params: Record<string, string | number> = {
+    matricule: payslip.userId!,
+    year: payslip.year!,
+    month: payslip.month!,
+    bonuses: payslip.prime ?? 0,
+    deductions: payslip.deduction ?? 0
   };
-  return this.http.post<Payslip>(`${this.baseUrl}/payslips/create`, null, {
-    ...this.getHttpOptions(),
-    params: body
-  });
+
+  return this.http.post<PayslipDTO>(`${this.baseUrl}/payslips/create`, null, { ...this.getHttpOptions(), params }).pipe(
+    map(p => ({
+      id: p.id,
+      employeNom: p.employeNom ?? '',
+      salaireBase: p.baseSalary ?? 0,
+      prime: p.bonuses ?? 0,
+      deduction: p.deductions ?? 0,
+      year: p.year,
+      month: p.month,
+      userId: payslip.userId
+    }))
+  );
 }
 
-updatePayslip(id: number, payslip: Partial<Payslip>): Observable<Payslip> {
+updatePayslip(id: number, payslip: PayslipDisplay): Observable<PayslipDisplay> {
   const body = {
     bonuses: payslip.prime ?? 0,
     deductions: payslip.deduction ?? 0
   };
-  return this.http.put<Payslip>(`${this.baseUrl}/payslips/${id}`, body, this.getHttpOptions());
-}
 
+  return this.http.put<PayslipDTO>(`${this.baseUrl}/payslips/${id}`, body, this.getHttpOptions()).pipe(
+    map(p => ({
+      id: p.id,
+      employeNom: p.employeNom ?? '',
+      salaireBase: p.baseSalary ?? 0,
+      prime: p.bonuses ?? 0,
+      deduction: p.deductions ?? 0,
+      year: p.year,
+      month: p.month,
+      userId: payslip.userId
+    }))
+  );
+}
 
 deletePayslip(id: number): Observable<any> {
   return this.http.delete(`${this.baseUrl}/payslips/${id}`, this.getHttpOptions());
 }
-
 }

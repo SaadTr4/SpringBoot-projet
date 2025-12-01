@@ -173,6 +173,7 @@ tr:hover {
   object-fit: cover;
 }
 
+
 .no-pic {
   width: 40px;
   height: 40px;
@@ -182,4 +183,54 @@ tr:hover {
   align-items: center;
   justify-content: center;
   font-size: 18px;
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.search-field label {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.search-field select,
+.search-field input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.3);
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.search-field select option {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+  color: rgba(255,255,255,0.8);
+}
+
+.input[type="file"] {
+  padding: 8px;
+}
+
+.table-wrapper {
+  overflow-x: auto;   // Permet le scroll horizontal
+  -webkit-overflow-scrolling: touch; // Pour le scroll fluide sur mobile
+}
+
+table {
+  min-width: 900px;   // Largeur minimale pour forcer le scroll si écran petit
 }

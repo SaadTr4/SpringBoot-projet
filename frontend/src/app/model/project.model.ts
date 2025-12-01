@@ -4,7 +4,8 @@ export interface Project {
   id?: number;
   name: string;
   description?: string;
-  projectManager?: User;
+  projectManagerName?: string;
+  projectManagerId?: number;
   users?: User[];
-  status?: 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'PLANNED';
+  status?: string;
 }

@@ -1,5 +1,6 @@
 package fr.springboot.backend.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import fr.springboot.backend.enums.ContractType;
 import fr.springboot.backend.enums.Grade;
 import fr.springboot.backend.enums.Role;
@@ -227,5 +228,10 @@ public class User {
 
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
+    }
+
+    @JsonProperty("hasImage")
+    public boolean hasImage() {
+        return this.profileImage != null && this.profileImage.length > 0;
     }
 }
