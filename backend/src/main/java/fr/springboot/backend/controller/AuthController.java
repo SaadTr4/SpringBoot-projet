@@ -131,6 +131,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("authenticated", false));
         }
+        Integer userId = (Integer) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("authenticated", false));
+        }
+
+        User user = userRepository.findById(userId)
+                .orElse(null);
 
         Map<String, Object> info = new HashMap<>();
         info.put("authenticated", true);
@@ -139,6 +147,13 @@ public class AuthController {
         info.put("role", session.getAttribute("role"));
         info.put("sessionId", session.getId());
 
+        if (user != null && user.getDepartment() != null) {
+            info.put("department", user.getDepartment().getName());
+            info.put("departmentId", user.getDepartment().getId());
+        } else {
+            info.put("department", null);
+            info.put("departmentId", null);
+        }
         return ResponseEntity.ok(info);
     }
 }

@@ -100,7 +100,6 @@ public class PayslipService {
         }
 
         Payslip payslip = new Payslip(year, month, bonuses, customDeductions, user);
-        payslip.setRegistrationNumber(user.getMatricule());
 
         // Assure que les montants sont bien calculés
         payslip.calculateDeductions();
@@ -109,29 +108,6 @@ public class PayslipService {
         return payslipRepository.save(payslip);
     }
 
-    /**
-     * Updates an existing payslip
-     *
-     * @param id Payslip ID
-     * @param bonuses New bonus amount
-     * @param customDeductions New deduction amount
-     * @return Updated payslip
-     * @throws IllegalArgumentException if payslip not found
-     */
-    public Payslip updatePayslip(Integer id, BigDecimal bonuses, BigDecimal customDeductions) {
-
-        Payslip payslip = payslipRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Fiche de paie non trouvée"));
-
-        if (bonuses != null) payslip.setBonuses(bonuses);
-        if (customDeductions != null) payslip.setCustom_deductions(customDeductions);
-
-        // Recalcule des déductions et du net pay
-        payslip.calculateDeductions();
-        payslip.calculateNetPay();
-
-        return payslipRepository.save(payslip);
-    }
 
     /**
      * Deletes a payslip by ID
@@ -145,35 +121,83 @@ public class PayslipService {
     // ========================
     // Conversion vers DTO
     // ========================
-    private PayslipDTO toDTO(Payslip p) {
-        // recalcul si nécessaire
-        if (p.getBaseSalary() == null) p.setBaseSalary(p.getUser() != null && p.getUser().getBaseSalary() != null ? p.getUser().getBaseSalary() : BigDecimal.ZERO);
+    public PayslipDTO toDTO(Payslip p) {
+        // S'assurer que tous les champs sont initialisés
+        if (p.getBaseSalary() == null) {
+            p.setBaseSalary(p.getUser() != null && p.getUser().getBaseSalary() != null
+                    ? p.getUser().getBaseSalary()
+                    : BigDecimal.ZERO);
+        }
         if (p.getBonuses() == null) p.setBonuses(BigDecimal.ZERO);
-        if (p.getDeductions() == null) p.setDeductions(BigDecimal.ZERO);
+        if (p.getCustom_deductions() == null) p.setCustom_deductions(BigDecimal.ZERO);
 
-        // recalcul net pay
+        // Recalculer les déductions et le net pay
+        p.calculateDeductions();
         p.calculateNetPay();
 
         String nom = p.getUser() != null
                 ? p.getUser().getFirstName() + " " + p.getUser().getLastName()
                 : "";
 
-        return new PayslipDTO(
+        PayslipDTO dto = new PayslipDTO(
                 p.getId(),
                 p.getMonth(),
                 p.getYear(),
                 p.getBaseSalary(),
                 p.getBonuses(),
                 p.getDeductions(),
+                p.getNetPay(),
+                p.getCustom_deductions(),
                 nom
         );
+
+        // Remplir le monthName
+        dto.setMonthName(p.getMonth());
+
+        return dto;
+
     }
 
+    /**
+     * Updates an existing payslip
+     *
+     * @param id Payslip ID
+     * @param bonuses New bonus amount
+     * @param customDeductions New deduction amount
+     * @return Updated payslip
+     * @throws IllegalArgumentException if payslip not found
+     */
+    public Payslip updatePayslip(Integer id, BigDecimal bonuses, BigDecimal customDeductions,
+                                 Integer month, Integer year) {  // ← Ajouter month et year
+        Payslip payslip = payslipRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Fiche de paie non trouvée"));
+
+        System.out.println("AVANT UPDATE: " + payslip);  // DEBUG
+
+        if (bonuses != null) payslip.setBonuses(bonuses);
+        if (customDeductions != null) payslip.setCustom_deductions(customDeductions);
+        if (month != null) payslip.setMonth(month);  // ← Ajouter ici
+        if (year != null) payslip.setYear(year);    // ← Ajouter ici
+
+        // Recalcule des déductions et du net pay
+        payslip.calculateDeductions();
+        payslip.calculateNetPay();
+
+        Payslip saved = payslipRepository.save(payslip);
+        System.out.println("APRÈS UPDATE: " + saved);  // DEBUG
+
+        return saved;
+    }
 
     public List<PayslipDTO> findAllDTO() {
         return findAll().stream()
                 .map(this::toDTO)
                 .toList();
+    }
+    public PayslipDTO findByIdDTO(Integer id) {
+        Payslip p = payslipRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Fiche introuvable"));
+        return toDTO(p);
     }
 
     public List<PayslipDTO> findByUserIdDTO(Integer id) {

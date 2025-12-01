@@ -16,9 +16,9 @@
     <input type="number" placeholder="Année" #year>
     <select #month>
       <option value="">Tous</option>
-      <option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="m">{{ m }}</option>
+      <option *ngFor="let m of months; let i = index" [value]="i + 1">{{ m }}</option>
     </select>
-      <button (click)="filterPayslips( matricule.value || undefined, year.valueAsNumber || undefined,  +month.value || undefined)">Filtrer</button>
+    <button (click)="filterPayslips(matricule.value || undefined, year.valueAsNumber || undefined, +month.value || undefined)">Filtrer</button>
     <button (click)="loadPayslips()">Réinitialiser</button>
   </div>
 
@@ -33,6 +33,7 @@
           <th>Prime (€)</th>
           <th>Déduction (€)</th>
           <th>Total (€)</th>
+          <th>Date</th>
           <th>Actions</th>
         </tr>
       </thead>
@@ -40,13 +41,15 @@
         <tr *ngFor="let p of payslips">
           <td>{{ p.id }}</td>
           <td>{{ p.employeNom }}</td>
-          <td>{{ p.salaireBase }}</td>
-          <td>{{ p.prime }}</td>
-          <td>{{ p.deduction }}</td>
+          <td>{{ p.baseSalary }}</td>
+          <td>{{ p.bonuses }}</td>
+          <td>{{ p.deductions }}</td>
           <td>{{ getTotal(p) }}</td>
-          <td>
-            <button (click)="openModal('edit', p)">Modifier</button>
-            <button (click)="deletePayslip(p)">Supprimer</button>
+          <td>{{ (months && p.month != null) ? months[p.month - 1] : '' }} {{ p.year || '' }}</td>
+          <td class="actions">
+            <button class="btn-edit" (click)="openModal('edit', p)">Modifier</button>
+            <button class="btn-pdf" (click)="exportPDF(p)">PDF</button>
+            <button class="btn-delete" (click)="deletePayslip(p)">Supprimer</button>
           </td>
         </tr>    
       </tbody>
@@ -56,25 +59,35 @@
 </div>
 
 <!-- Modal Add/Edit -->
-<div class="modal-layer" [class.open]="modalOpen">
+<div *ngIf="modalOpen" class="modal-layer">
   <div class="modal-box">
     <h3>{{ modalMode === 'add' ? 'Générer une fiche de paie' : 'Modifier la fiche de paie' }}</h3>
 
     <form (ngSubmit)="savePayslip()">
+      <!-- Mode ADD: sélection employé seulement -->
       <select [(ngModel)]="selectedPayslip.userId" name="userId" *ngIf="modalMode === 'add'" required>
+        <option value="">-- Sélectionner un employé --</option>
         <option *ngFor="let u of employees" [value]="u.id">
-        {{ u.matricule }} - {{ u.firstName }} {{ u.lastName }}
-      </option>
+          {{ u.matricule }} - {{ u.firstName }} {{ u.lastName }}
+        </option>
       </select>
 
-      <input type="number" [(ngModel)]="selectedPayslip.salaireBase" name="salaireBase" placeholder="Salaire de base (€)" required>
-      <input type="number" [(ngModel)]="selectedPayslip.prime" name="prime" placeholder="Prime (€)" required>
-      <input type="number" [(ngModel)]="selectedPayslip.deduction" name="deduction" placeholder="Déduction (€)" required>
-      <input type="number" [(ngModel)]="selectedPayslip.year" name="year" placeholder="Année" required>
-      <input type="number" [(ngModel)]="selectedPayslip.month" name="month" placeholder="Mois" required>
+      <!-- Mode EDIT: affichage readonly -->
+      <div *ngIf="modalMode === 'edit'">
+        <input type="text" [value]="selectedPayslip.employeNom" readonly placeholder="Employé">
+        <input type="number" [value]="selectedPayslip.baseSalary" readonly placeholder="Salaire de base (€)">
+      </div>
 
-      <button type="submit">Enregistrer</button>
-      <button type="button" (click)="closeModal()">Annuler</button>
+      <!-- Champs modifiables -->
+      <input type="number" [(ngModel)]="selectedPayslip.bonuses" name="bonuses" placeholder="Prime (€)" required>
+      <input type="number" [(ngModel)]="selectedPayslip.customDeductions" name="customDeductions" placeholder="Déduction personnalisée (€)" required>
+      <input type="number" [(ngModel)]="selectedPayslip.year" name="year" placeholder="Année" required>
+      <select [(ngModel)]="selectedPayslip.month" name="month" required>
+        <option *ngFor="let m of months; let i = index" [value]="i + 1">{{ m }}</option>
+      </select>
+
+      <button type="submit" class="save">Enregistrer</button>
+      <button type="button" class="cancel" (click)="closeModal()">Annuler</button>
     </form>
   </div>
 </div>

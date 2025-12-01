@@ -4,71 +4,143 @@
   <div class="glass-card welcome-card">
     <div class="welcome-left">
       <div>
-        <h2 class="welcome-title">Liste des projets</h2>
-        <p class="welcome-sub">Connecté en tant que {{ currentUser?.firstName }} {{ currentUser?.lastName }}</p>
+        <h2 class="welcome-title"> Liste des projets</h2>
+        <p class="welcome-sub">
+          Connecté en tant que {{ currentUser?.firstName }} {{ currentUser?.lastName }}
+          <span *ngIf="currentUser && currentUser.role"> - {{ currentUser.role }}</span>        </p>
       </div>
     </div>
-    <button *ngIf="canAdd" class="welcome-logout" (click)="openModal('add')">+ Ajouter</button>
+
+    <!-- Bouton Ajouter seulement si permission -->
+    <button *ngIf="canAdd"
+            class="welcome-logout"
+            (click)="openModal('add')"
+            title="Ajouter un nouveau projet">
+      + Ajouter un projet
+    </button>
   </div>
 
-<!-- Filtre projets -->
-<div class="glass-card" *ngIf="canAdd || canEdit">
-  <h3 style="margin-bottom: 16px; color: #fff;">Filtrer les projets</h3>
-  <form (ngSubmit)="applyFilter()">
-    <div class="search-grid">
-      <div class="search-field">
-        <label>Nom du projet</label>
-        <input class="input" [(ngModel)]="filterName" name="filterName" placeholder="Ex: Projet Alpha">
+  <!-- Filtre projets (visible si permission) -->
+  <div class="glass-card" *ngIf="canFilter">
+    <h3 style="margin-bottom: 16px; color: #fff;"> Filtrer les projets</h3>
+    <form (ngSubmit)="applyFilter()">
+      <div class="search-grid">
+        <!-- Nom du projet -->
+        <div class="search-field">
+          <label>Nom du projet</label>
+          <input class="input"
+                 [(ngModel)]="filterName"
+                 name="filterName"
+                 placeholder="Ex: Migration Cloud">
+        </div>
+
+        <!-- Chef de projet -->
+        <div class="search-field">
+          <label>Chef de projet</label>
+          <select class="input" [(ngModel)]="filterManagerId" name="filterManagerId">
+            <option [ngValue]="null">Tous les chefs de projet</option>
+            <option *ngFor="let u of users" [ngValue]="u.id">
+              {{ u.firstName }} {{ u.lastName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Statut -->
+        <div class="search-field">
+          <label>Statut</label>
+          <select class="input" [(ngModel)]="filterStatus" name="filterStatus">
+            <option [ngValue]="null">Tous les statuts</option>
+            <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
+          </select>
+        </div>
       </div>
 
-      <div class="search-field">
-        <label>Chef de projet</label>
-        <select class="input" [(ngModel)]="filterManagerId" name="filterManagerId">
-          <option value="">Tous</option>
-          <option *ngFor="let u of users" [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
-        </select>
+      <div class="button-container">
+        <button class="btn-action" type="submit"> Filtrer</button>
+        <button type="button" class="btn-delete" (click)="resetFilter()"> Réinitialiser</button>
       </div>
+    </form>
+  </div>
 
-      <div class="search-field">
-        <label>Statut</label>
-        <select class="input" [(ngModel)]="filterStatus" name="filterStatus">
-          <option value="">Tous</option>
-          <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
-        </select>
-      </div>
+  <!-- Message d'information sur les permissions -->
+  <div *ngIf="!canAdd && !canEdit && !canDelete"
+       style="background: rgba(255, 193, 7, 0.2); padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; border-left: 4px solid #ffc107;">
+    <span style="font-size:1.5rem;"></span>
+    <div style="color: #fff;">
+      Vous avez un accès <strong>lecture seule</strong> aux projets.
     </div>
+  </div>
 
-    <div class="button-container">
-      <button class="btn-action" type="submit">Filtrer</button>
-      <button type="button" class="btn-delete" (click)="resetFilter()">Réinitialiser</button>
-    </div>
-  </form>
-</div>
-
-
-  <!-- Tableau -->
+  <!-- Tableau des projets -->
   <div class="glass-card table-card">
     <table>
       <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nom du projet</th>
-          <th>Chef de projet</th>
-          <th>Statut</th>
-          <th>Actions</th>
-        </tr>
+      <tr>
+        <th>ID</th>
+        <th>Nom du projet</th>
+        <th>Chef de projet</th>
+        <th>Statut</th>
+        <th *ngIf="canEdit || canDelete">Actions</th>
+      </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of filteredProjects">
-          <td>{{ p.id }}</td>
-          <td>{{ p.name }}</td>
-          <td>{{ p.projectManagerName || '-' }}</td>
-          <td>{{ getStatusLabel(p.status) }}</td>
-          <td class="actions">
-            <button *ngIf="canEdit" class="btn-action" (click)="openModal('edit', p)">Modifier</button>
-            <button *ngIf="canDelete" class="btn-delete" (click)="deleteProject(p.id!)">Supprimer</button>
-          </td>
-        </tr>
+      <!-- Ligne pour chaque projet -->
+      <tr *ngFor="let p of filteredProjects; trackBy: trackByProjectId">
+        <td>{{ p.id }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.projectManagerName || getManagerName(p.projectManagerId) || '-' }}</td>
+        <td>
+            <span [ngClass]="{
+              'badge-planned': p.status === 'PLANNED',
+              'badge-progress': p.status === 'IN_PROGRESS',
+              'badge-completed': p.status === 'COMPLETED',
+              'badge-cancelled': p.status === 'CANCELLED'
+            }">
+              {{ getStatusLabel(p.status) }}
+            </span>
+        </td>
+
+        <!-- Actions avec permissions -->
+        <td *ngIf="canEdit || canDelete" class="actions">
+          <!-- Bouton Modifier : visible seulement si permission -->
+          <button *ngIf="canEdit"
+                  class="btn-action"
+                  (click)="openModal('edit', p)"
+                  title="Modifier ce projet">
+             Modifier
+          </button>
+
+          <!-- Bouton Supprimer : visible seulement si permission -->
+          <button *ngIf="canDelete"
+                  class="btn-delete"
+                  (click)="deleteProject(p.id!)"
+                  title="Supprimer ce projet">
+             Supprimer
+          </button>
+
+          <!-- Message si aucune action disponible -->
+          <span *ngIf="!canEdit && !canDelete"
+                style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">
+              Lecture seule
+            </span>
+        </td>
+      </tr>
+
+      <!-- Message si aucun projet -->
+      <tr *ngIf="filteredProjects.length === 0">
+        <td [attr.colspan]="canEdit || canDelete ? 5 : 4"
+            style="text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+          <div style="font-size: 3rem; margin-bottom: 16px;"></div>
+          <div style="font-size: 1.1rem;">
+            {{ projects.length === 0 ? 'Aucun projet trouvé' : 'Aucun projet ne correspond aux filtres' }}
+          </div>
+          <button *ngIf="filterName || filterManagerId || filterStatus"
+                  (click)="resetFilter()"
+                  style="margin-top: 16px; color: #667eea; background: none; border: none; cursor: pointer; text-decoration: underline;">
+            Réinitialiser les filtres
+          </button>
+        </td>
+      </tr>
       </tbody>
     </table>
   </div>
@@ -77,30 +149,72 @@
 <!-- Modal Ajouter / Modifier -->
 <div class="modal-layer" [class.open]="modalOpen" (click)="closeModal()">
   <div class="modal-box" (click)="$event.stopPropagation()">
-    <h3>{{ modalMode === 'add' ? 'Ajouter un projet' : 'Modifier un projet' }}</h3>
+    <h3>{{ modalMode === 'add' ? '➕ Ajouter un projet' : ' Modifier un projet' }}</h3>
 
     <form #projectForm="ngForm" (ngSubmit)="saveProject(projectForm)">
-      <input class="input" placeholder="Nom du projet" [(ngModel)]="selectedProject.name" name="name" required />
 
-      <label style="margin-top:10px; display:block;">Chef de projet</label>
-      <select 
-        [(ngModel)]="selectedProject.projectManagerId" 
-        name="manager" 
-        class="input" 
-        required
-      >
-        <option value="" disabled selected>-- Sélectionnez un chef de projet --</option>
-        <option *ngFor="let u of users" [value]="u.id">{{ u.firstName }} {{ u.lastName }}</option>
-      </select>
+      <!-- Nom du projet -->
+      <div style="margin-bottom: 16px;">
+        <label style="color:white; font-size:0.9rem; display:block; margin-bottom:4px;">
+          Nom du projet *
+        </label>
+        <input class="input"
+               placeholder="Ex: Migration vers le Cloud"
+               [(ngModel)]="selectedProject.name"
+               name="name"
+               required />
+      </div>
 
-      <label style="margin-top:10px; display:block;">Statut</label>
-      <select [(ngModel)]="selectedProject.status" name="status" class="input">
-        <option *ngFor="let s of statuses" [value]="s.value">{{ s.label }}</option>
-      </select>
+      <!-- Chef de projet -->
+      <div style="margin-bottom: 16px;">
+        <label style="color:white; font-size:0.9rem; display:block; margin-bottom:4px;">
+          Chef de projet *
+        </label>
+        <select [(ngModel)]="selectedProject.projectManagerId"
+                name="manager"
+                class="input"
+                required>
+          <option value="" disabled selected>-- Sélectionnez un chef de projet --</option>
+          <option *ngFor="let u of users" [value]="u.id">
+            {{ u.firstName }} {{ u.lastName }}
+          </option>
+        </select>
+      </div>
 
+      <!-- Description (optionnel) -->
+      <div style="margin-bottom: 16px;" *ngIf="modalMode === 'add'">
+        <label style="color:white; font-size:0.9rem; display:block; margin-bottom:4px;">
+          Description
+        </label>
+        <textarea class="input"
+                  [(ngModel)]="selectedProject.description"
+                  name="description"
+                  rows="3"
+                  placeholder="Description du projet (optionnel)"></textarea>
+      </div>
+
+      <!-- Statut -->
+      <div style="margin-bottom: 16px;">
+        <label style="color:white; font-size:0.9rem; display:block; margin-bottom:4px;">
+          Statut
+        </label>
+        <select [(ngModel)]="selectedProject.status"
+                name="status"
+                class="input">
+          <option *ngFor="let s of statuses" [value]="s.value">
+            {{ s.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Boutons -->
       <div class="button-container">
-        <button class="btn-action" type="submit">{{ modalMode === 'add' ? 'Enregistrer' : 'Mettre à jour' }}</button>
-        <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+        <button class="btn-action" type="submit">
+          {{ modalMode === 'add' ? ' Enregistrer' : ' Mettre à jour' }}
+        </button>
+        <button type="button" class="btn-delete" (click)="closeModal()">
+           Annuler
+        </button>
       </div>
     </form>
   </div>

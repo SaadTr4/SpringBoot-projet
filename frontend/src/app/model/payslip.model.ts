@@ -6,9 +6,10 @@ export interface PayslipDTO {
   year?: number;
   baseSalary?: number;
   bonuses?: number;
-  deductions?: number;
+  deductions?: number;  // Total des déductions (calculé)
   netPay?: number;
-  employeNom?: string;   // le backend doit renvoyer directement le nom
+  employeNom?: string;
+  customDeductions?: number;
 }
 
 // Pour l'affichage / modal
@@ -16,9 +17,11 @@ export interface PayslipDisplay {
   id?: number;
   userId?: number;
   employeNom?: string;
-  salaireBase?: number;
-  prime?: number;
-  deduction?: number;
+  baseSalary?: number;
+  bonuses?: number;
+  customDeductions?: number;  // ← Déductions personnalisées (modifiable)
+  deductions?: number;        // ← Total des déductions (calculé, readonly)
   year?: number;
   month?: number;
+  netPay?: number;
 }

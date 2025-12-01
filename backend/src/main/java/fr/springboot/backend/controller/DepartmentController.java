@@ -1,8 +1,10 @@
 package fr.springboot.backend.controller;
 
+import fr.springboot.backend.dto.DepartmentDTO;
 import fr.springboot.backend.model.Department;
 import fr.springboot.backend.model.User;
 import fr.springboot.backend.service.DepartmentService;
+import fr.springboot.backend.service.PositionService;
 import fr.springboot.backend.service.UserService;
 
 import org.springframework.web.bind.annotation.*;
@@ -50,6 +52,9 @@ public class DepartmentController {
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
+
+
+
 
     /**
      * Retrieves all users belonging to a specific department
@@ -107,6 +112,12 @@ public class DepartmentController {
         Optional<Department> db = departmentService.findById(id);
 
         if (db.isEmpty()) return ResponseEntity.notFound().build();
+
+        // Vérifie si un autre département a déjà le même code
+        Optional<Department> existingWithCode = departmentService.findByCode(data.getCode());
+        if (existingWithCode.isPresent() && !existingWithCode.get().getId().equals(id)) {
+            return ResponseEntity.badRequest().body("Code déjà existant");
+        }
 
         Department d = db.get();
         d.setName(data.getName());
@@ -171,4 +182,10 @@ public class DepartmentController {
 
         return ResponseEntity.badRequest().body("Impossible de retirer l'utilisateur");
     }
+
+    @GetMapping("/dto")
+    public List<DepartmentDTO> getAllDTO() {
+        return departmentService.getAllDTO();
+    }
+
 }

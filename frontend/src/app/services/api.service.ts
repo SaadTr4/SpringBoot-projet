@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../model/user.model';
 import { Project } from '../model/project.model';
-import { Department } from '../model/department.model';
+import { Department, DepartmentDTO } from '../model/department.model';
 import { Position } from '../model/position.model';
 import { PayslipDTO , PayslipDisplay} from '../model/payslip.model';
 import { map } from 'rxjs/operators';
@@ -40,11 +40,21 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/auth/check`, this.getHttpOptions());
   }
 
+
+  // Ajouter une propriété pour stocker les employés
+  private employeesCache: User[] = [];
+
+  // Modifier getUsers pour mettre en cache
+
   // ===== Utilisateurs =====
   getUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.baseUrl}/users`, this.getHttpOptions());
+    return this.http.get<User[]>(`${this.baseUrl}/users`, this.getHttpOptions()).pipe(
+      map(users => {
+        this.employeesCache = users;
+        return users;
+      })
+    );
   }
-
   getUserById(id: number): Observable<User> {
     return this.http.get<User>(`${this.baseUrl}/users/${id}`, this.getHttpOptions());
   }
@@ -114,6 +124,9 @@ export class ApiService {
 getDepartments(): Observable<Department[]> {
   return this.http.get<Department[]>(`${this.baseUrl}/departments`, this.getHttpOptions());
 }
+getDepartmentsDTO(): Observable<DepartmentDTO[]> {
+  return this.http.get<DepartmentDTO[]>(`${this.baseUrl}/departments/dto`, this.getHttpOptions());
+}
 
 getDepartmentById(id: number): Observable<Department> {
   return this.http.get<Department>(`${this.baseUrl}/departments/${id}`, this.getHttpOptions());
@@ -142,8 +155,9 @@ removeUserFromDepartment(departmentId: number, matricule: string): Observable<an
 
 // ===== Positions =====
 getPositions(): Observable<Position[]> {
-  return this.http.get<Position[]>(`${this.baseUrl}/positions`, this.getHttpOptions());
+  return this.http.get<Position[]>(`${this.baseUrl}/positions/dto`, this.getHttpOptions());
 }
+
 
 getPositionById(id: number): Observable<Position> {
   return this.http.get<Position>(`${this.baseUrl}/positions/${id}`, this.getHttpOptions());
@@ -179,28 +193,15 @@ removeUserFromPosition(id: number, matricule: string): Observable<any> {
 }
 
  // ===== Fiches de paie =====
-getPayslips(): Observable<PayslipDisplay[]> {
-  return this.http.get<PayslipDTO[]>(`${this.baseUrl}/payslips`, this.getHttpOptions()).pipe(
-    map(res => res.map(p => ({
-      id: p.id,
-      employeNom: p.employeNom ?? '',
-      salaireBase: p.baseSalary ?? 0,
-      prime: p.bonuses ?? 0,
-      deduction: p.deductions ?? 0,
-      year: p.year,
-      month: p.month
-    })))
-  );
-}
-
 getPayslipsByUser(userId: number): Observable<PayslipDisplay[]> {
   return this.http.get<PayslipDTO[]>(`${this.baseUrl}/payslips/user/${userId}`, this.getHttpOptions()).pipe(
     map(res => res.map(p => ({
       id: p.id,
       employeNom: p.employeNom ?? '',
-      salaireBase: p.baseSalary ?? 0,
-      prime: p.bonuses ?? 0,
-      deduction: p.deductions ?? 0,
+      baseSalary: p.baseSalary ?? 0,    
+      bonuses: p.bonuses ?? 0,         
+      deductions: p.deductions ?? 0,   
+      netPay: p.netPay ?? 0,
       year: p.year,
       month: p.month
     })))
@@ -212,9 +213,26 @@ filterPayslips(params: any): Observable<PayslipDisplay[]> {
     map(res => res.map(p => ({
       id: p.id,
       employeNom: p.employeNom ?? '',
-      salaireBase: p.baseSalary ?? 0,
-      prime: p.bonuses ?? 0,
-      deduction: p.deductions ?? 0,
+      baseSalary: p.baseSalary ?? 0,    
+      bonuses: p.bonuses ?? 0,          
+      deductions: p.deductions ?? 0,    
+      netPay: p.netPay ?? 0,
+      year: p.year,
+      month: p.month
+    })))
+  );
+}
+
+getPayslips(): Observable<PayslipDisplay[]> {
+  return this.http.get<PayslipDTO[]>(`${this.baseUrl}/payslips`, this.getHttpOptions()).pipe(
+    map(res => res.map(p => ({
+      id: p.id,
+      employeNom: p.employeNom ?? '',
+      baseSalary: p.baseSalary ?? 0,
+      bonuses: p.bonuses ?? 0,
+      customDeductions: p.customDeductions ?? 0,  // ← Récupérer depuis DTO
+      deductions: p.deductions ?? 0,
+      netPay: p.netPay ?? 0,
       year: p.year,
       month: p.month
     })))
@@ -222,21 +240,30 @@ filterPayslips(params: any): Observable<PayslipDisplay[]> {
 }
 
 createPayslip(payslip: PayslipDisplay): Observable<PayslipDisplay> {
+  const user = this.employeesCache.find(u => u.id === +payslip.userId!);  // ← Conversion en number
+  if (!user) {
+    throw new Error('Veuillez d\'abord charger la liste des employés');
+  }
+
   const params: Record<string, string | number> = {
-    matricule: payslip.userId!,
+    matricule: user.matricule,
     year: payslip.year!,
     month: payslip.month!,
-    bonuses: payslip.prime ?? 0,
-    deductions: payslip.deduction ?? 0
+    bonuses: payslip.bonuses ?? 0,
+    deductions: payslip.customDeductions ?? 0  // ← Utiliser customDeductions
   };
 
-  return this.http.post<PayslipDTO>(`${this.baseUrl}/payslips/create`, null, { ...this.getHttpOptions(), params }).pipe(
+  return this.http.post<PayslipDTO>(`${this.baseUrl}/payslips/create`, null, 
+    { ...this.getHttpOptions(), params }
+  ).pipe(
     map(p => ({
       id: p.id,
       employeNom: p.employeNom ?? '',
-      salaireBase: p.baseSalary ?? 0,
-      prime: p.bonuses ?? 0,
-      deduction: p.deductions ?? 0,
+      baseSalary: p.baseSalary ?? 0,
+      bonuses: p.bonuses ?? 0,
+      customDeductions: payslip.customDeductions ?? 0,
+      deductions: p.deductions ?? 0,
+      netPay: p.netPay ?? 0,
       year: p.year,
       month: p.month,
       userId: payslip.userId
@@ -246,22 +273,41 @@ createPayslip(payslip: PayslipDisplay): Observable<PayslipDisplay> {
 
 updatePayslip(id: number, payslip: PayslipDisplay): Observable<PayslipDisplay> {
   const body = {
-    bonuses: payslip.prime ?? 0,
-    deductions: payslip.deduction ?? 0
+    bonuses: payslip.bonuses ?? 0,
+    deductions: payslip.customDeductions ?? 0,
+    month: payslip.month,   // ← Ajouter ici
+    year: payslip.year      // ← Ajouter ici
   };
 
+  console.log('=== FRONTEND SENDING ===');
+  console.log('Body:', body);
+
   return this.http.put<PayslipDTO>(`${this.baseUrl}/payslips/${id}`, body, this.getHttpOptions()).pipe(
-    map(p => ({
-      id: p.id,
-      employeNom: p.employeNom ?? '',
-      salaireBase: p.baseSalary ?? 0,
-      prime: p.bonuses ?? 0,
-      deduction: p.deductions ?? 0,
-      year: p.year,
-      month: p.month,
-      userId: payslip.userId
-    }))
+    map(p => {
+      console.log('=== FRONTEND RECEIVED ===');
+      console.log('Response:', p);
+      
+      return {
+        id: p.id,
+        employeNom: p.employeNom ?? '',
+        baseSalary: p.baseSalary ?? 0,
+        bonuses: p.bonuses ?? 0,
+        customDeductions: p.customDeductions ?? 0,  // ← Récupérer depuis DTO
+        deductions: p.deductions ?? 0,
+        netPay: p.netPay ?? 0,
+        year: p.year,
+        month: p.month,
+        userId: payslip.userId
+      };
+    })
   );
+}
+// Ajouter l'export PDF
+exportPDF(id: number): Observable<Blob> {
+  return this.http.get(`${this.baseUrl}/payslips/${id}/pdf`, {
+    ...this.getHttpOptions(),
+    responseType: 'blob'
+  });
 }
 
 deletePayslip(id: number): Observable<any> {

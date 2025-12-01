@@ -1,5 +1,6 @@
 package fr.springboot.backend.service;
 
+import fr.springboot.backend.dto.PositionDTO;
 import fr.springboot.backend.model.Position;
 import fr.springboot.backend.model.User;
 import fr.springboot.backend.repository.PositionRepository;
@@ -138,4 +139,12 @@ public class PositionService {
         userRepository.save(u);
         return true;
     }
+
+    public List<PositionDTO> findAllDTO() {
+        return positionRepository.findAll()
+                .stream()
+                .map(PositionDTO::new)
+                .toList();
+    }
+
 }

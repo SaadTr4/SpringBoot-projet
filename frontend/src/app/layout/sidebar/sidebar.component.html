@@ -10,7 +10,7 @@
       </svg>
       <span>Tableau de bord</span>
     </a>
-    <a class="side-link"
+    <a *ngIf="currentUser?.role === 'ADMINISTRATEUR'" class="side-link"
        routerLink="/positions"
        routerLinkActive="active">
       <svg viewBox="0 0 24 24" width="18" height="18">
@@ -19,7 +19,7 @@
       <span>Postes</span>
     </a>
 
-    <a class="side-link"
+    <a *ngIf="currentUser?.role !== 'EMPLOYE'" class="side-link"
        routerLink="/employees"
        routerLinkActive="active">
       <svg viewBox="0 0 24 24" width="18" height="18">
@@ -37,7 +37,7 @@
       <span>Projets</span>
     </a>
 
-    <a class="side-link"
+    <a *ngIf="canViewDepartments" class="side-link"
        routerLink="/departments"
        routerLinkActive="active">
       <svg viewBox="0 0 24 24" width="18" height="18">
