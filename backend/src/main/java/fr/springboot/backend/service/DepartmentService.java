@@ -1,5 +1,6 @@
 package fr.springboot.backend.service;
 
+import fr.springboot.backend.dto.DepartmentDTO;
 import fr.springboot.backend.model.Department;
 import fr.springboot.backend.model.User;
 import fr.springboot.backend.repository.DepartmentRepository;
@@ -159,4 +160,33 @@ public class DepartmentService {
         userRepository.save(u);
         return true;
     }
+
+    public List<DepartmentDTO> getAllDTO() {
+
+        return departmentRepository.findAll().stream().map(d -> {
+
+            long members = 0;
+            try {
+                members = departmentRepository.countUsersByDepartment(d.getId());
+            } catch (Exception ignored) {}
+
+            String headName = null;
+            try {
+                headName = departmentRepository.findDepartmentHead(d.getId())
+                        .map(u -> (u.getFirstName() + " " + u.getLastName()).trim())
+                        .orElse(null);
+            } catch (Exception ignored) {}
+
+            return new DepartmentDTO(
+                    d.getId(),
+                    d.getName() != null ? d.getName() : "",
+                    d.getCode() != null ? d.getCode() : "",
+                    d.getDescription() != null ? d.getDescription() : "",
+                    members,
+                    headName
+            );
+
+        }).toList();
+    }
+
 }

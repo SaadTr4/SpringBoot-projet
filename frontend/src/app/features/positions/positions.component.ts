@@ -30,9 +30,9 @@ export class PositionsComponent implements OnInit {
   }
 
   openAddModal() {
-    this.modalMode = 'add';
-    this.selectedPoste = { id: 0, name: '', description: '' };
-    this.modalOpen = true;
+      this.modalMode = 'add';
+      this.selectedPoste = { name: '', description: '' }; // pas d'id
+      this.modalOpen = true;
   }
 
   openEditModal(poste: Position) {

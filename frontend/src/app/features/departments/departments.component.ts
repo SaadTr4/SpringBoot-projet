@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApiService } from '../../services/api.service';
-import { Department } from '../../model/department.model';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../../services/api.service';
+import { Department, DepartmentDTO } from '../../model/department.model';
 
 @Component({
   selector: 'app-departments',
@@ -14,13 +14,13 @@ import { FormsModule } from '@angular/forms';
 export class DepartmentsComponent implements OnInit {
 
   username = "Admin";
-
   modalOpen = false;
+  modalMode: 'add' | 'edit' = 'add';
 
-  departments: Department[] = [];
+  departments: DepartmentDTO[] = [];
 
   // Model pour le formulaire
-  newDepartment: Partial<Department> = {};
+  selectedDepartment: Partial<DepartmentDTO> = {};
 
   constructor(private api: ApiService) {}
 
@@ -29,16 +29,24 @@ export class DepartmentsComponent implements OnInit {
   }
 
   loadDepartments() {
-    this.api.getDepartments().subscribe({
-      next: (data) => this.departments = data,
+    this.api.getDepartmentsDTO().subscribe({
+      next: (data) => {
+        this.departments = data.filter(d => d && d.id != null);
+      },
       error: (err) => console.error(err)
     });
   }
-
-
+  
 
   openAddModal() {
-    this.newDepartment = {};
+    this.modalMode = 'add';
+    this.selectedDepartment = {};
+    this.modalOpen = true;
+  }
+
+  openEditModal(dept: Department) {
+    this.modalMode = 'edit';
+    this.selectedDepartment = { ...dept };
     this.modalOpen = true;
   }
 
@@ -47,15 +55,26 @@ export class DepartmentsComponent implements OnInit {
   }
 
   saveDepartment() {
-    if (!this.newDepartment.name || !this.newDepartment.code) return;
+    if (!this.selectedDepartment.name || !this.selectedDepartment.code) return;
 
-    this.api.createDepartment(this.newDepartment).subscribe({
-      next: (d) => {
-        this.departments.push(d);
-        this.closeModal();
-      },
-      error: (err) => console.error(err)
-    });
+    if (this.modalMode === 'add') {
+      this.api.createDepartment(this.selectedDepartment).subscribe({
+        next: (d) => {
+          this.departments.push(d);
+          this.closeModal();
+        },
+        error: (err) => console.error(err)
+      });
+    } else {
+      this.api.updateDepartment(this.selectedDepartment.id!, this.selectedDepartment).subscribe({
+        next: (d) => {
+          const index = this.departments.findIndex(dep => dep.id === d.id);
+          if (index > -1) this.departments[index] = d;
+          this.closeModal();
+        },
+        error: (err) => console.error(err)
+      });
+    }
   }
 
   deleteDepartment(id: number) {

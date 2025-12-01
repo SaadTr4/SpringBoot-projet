@@ -92,15 +92,19 @@ tr:hover {
 .modal-layer {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-  display: none;
+  display: none;           // invisible par défaut
   justify-content: center;
   align-items: center;
-  z-index: 500;
-}
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+  z-index: 999;
+  transition: opacity 0.3s ease;
+  opacity: 0;
 
-.modal-layer.open {
-  display: flex;
+  &.open {
+    display: flex;         // visible seulement quand modalOpen = true
+    opacity: 1;
+  }
 }
 
 .modal-box {

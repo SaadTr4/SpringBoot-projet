@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../model/user.model';
 import { Project } from '../model/project.model';
-import { Department } from '../model/department.model';
+import { Department, DepartmentDTO } from '../model/department.model';
 import { Position } from '../model/position.model';
 import { PayslipDTO , PayslipDisplay} from '../model/payslip.model';
 import { map } from 'rxjs/operators';
@@ -124,6 +124,9 @@ export class ApiService {
 getDepartments(): Observable<Department[]> {
   return this.http.get<Department[]>(`${this.baseUrl}/departments`, this.getHttpOptions());
 }
+getDepartmentsDTO(): Observable<DepartmentDTO[]> {
+  return this.http.get<DepartmentDTO[]>(`${this.baseUrl}/departments/dto`, this.getHttpOptions());
+}
 
 getDepartmentById(id: number): Observable<Department> {
   return this.http.get<Department>(`${this.baseUrl}/departments/${id}`, this.getHttpOptions());
@@ -152,8 +155,9 @@ removeUserFromDepartment(departmentId: number, matricule: string): Observable<an
 
 // ===== Positions =====
 getPositions(): Observable<Position[]> {
-  return this.http.get<Position[]>(`${this.baseUrl}/positions`, this.getHttpOptions());
+  return this.http.get<Position[]>(`${this.baseUrl}/positions/dto`, this.getHttpOptions());
 }
+
 
 getPositionById(id: number): Observable<Position> {
   return this.http.get<Position>(`${this.baseUrl}/positions/${id}`, this.getHttpOptions());

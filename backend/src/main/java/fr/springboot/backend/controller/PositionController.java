@@ -1,5 +1,6 @@
 package fr.springboot.backend.controller;
 
+import fr.springboot.backend.dto.PositionDTO;
 import fr.springboot.backend.model.Position;
 import fr.springboot.backend.model.User;
 import fr.springboot.backend.service.PositionService;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Position operations.
@@ -37,8 +39,10 @@ public class PositionController {
      * @return list of all positions
      */
     @GetMapping
-    public List<Position> getAll() {
-        return positionService.findAll();
+    public List<PositionDTO> getAll() {
+        return positionService.findAll().stream()
+                .map(PositionDTO::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -184,5 +188,9 @@ public class PositionController {
             return ResponseEntity.ok().build();
 
         return ResponseEntity.badRequest().body("Impossible de retirer l'utilisateur du poste");
+    }
+    @GetMapping("/dto")
+    public List<PositionDTO> getAllPositionDTO() {
+        return positionService.findAllDTO();
     }
 }

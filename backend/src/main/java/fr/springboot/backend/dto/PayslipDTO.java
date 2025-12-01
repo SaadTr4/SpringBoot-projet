@@ -58,12 +58,20 @@ public class PayslipDTO {
     public String getEmployeNom() { return employeNom; }
     public void setEmployeNom(String employeNom) { this.employeNom = employeNom; }
 
-    private static final String[] MONTHS_FR = {
-            "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-            "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-    };
-
     public String getMonthName() {
-        return MONTHS_FR[this.month - 1];
+        return monthName;
+    }
+
+    public void setMonthName(int monthNumber) {
+        // monthNumber = 1 pour Janvier, 2 pour Février, etc.
+        final String[] MONTHS_FR = {
+                "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+        };
+        if (monthNumber >= 1 && monthNumber <= 12) {
+            this.monthName = MONTHS_FR[monthNumber - 1];
+        } else {
+            this.monthName = "";
+        }
     }
 }

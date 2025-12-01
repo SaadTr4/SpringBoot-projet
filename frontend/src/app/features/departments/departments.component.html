@@ -18,6 +18,7 @@
       <thead>
       <tr>
         <th>ID</th>
+        <th>Code</th>
         <th>Nom du département</th>
         <th>Chef</th>
         <th>Employés</th>
@@ -27,35 +28,40 @@
       <tbody>
       <tr *ngFor="let d of departments">
           <td>{{ d.id }}</td>
+          <td>{{ d.code }}</td>
           <td>{{ d.name }}</td>
           <td>{{ d.head || '-' }}</td>
           <td>{{ d.nbEmployees || 0 }}</td>
           <td>
-            <button class="btn-action" (click)="openAddModal()">Modifier</button>
+            <button class="btn-action" (click)="openEditModal(d)">Modifier</button>
             <button class="btn-delete" (click)="deleteDepartment(d.id!)">Supprimer</button>
+          </td>
+        </tr>
+        <tr *ngIf="departments.length === 0">
+          <td colspan="6" style="text-align:center; padding:20px; color:rgba(255,255,255,0.6)">
+            Aucun département trouvé
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Modal d'ajout -->
-<!-- Modal d'ajout -->
-<div class="modal-layer" [class.open]="modalOpen">
-  <div class="modal-box">
-    <h3>Ajouter un département</h3>
+  <!-- Modal Ajouter / Modifier -->
+  <div class="modal-layer" [class.open]="modalOpen">
+    <div class="modal-box">
+      <h3>{{ modalMode === 'add' ? 'Ajouter un département' : 'Modifier le département' }}</h3>
 
-    <form (ngSubmit)="saveDepartment()">
-      <input class="input" placeholder="Nom du département" [(ngModel)]="newDepartment.name" name="name" required />
-      <input class="input" placeholder="Code" [(ngModel)]="newDepartment.code" name="code" required />
-      <input class="input" placeholder="Description" [(ngModel)]="newDepartment.description" name="description" />
+      <form (ngSubmit)="saveDepartment()">
+        <input class="input" placeholder="Nom du département" [(ngModel)]="selectedDepartment.name" name="name" required />
+        <input class="input" placeholder="Code" [(ngModel)]="selectedDepartment.code" name="code" required />
+        <input class="input" placeholder="Description" [(ngModel)]="selectedDepartment.description" name="description" />
 
-      <div class="button-container">
-        <button class="welcome-logout" type="submit">Enregistrer</button>
-        <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
-      </div>
-    </form>
+        <div class="button-container">
+          <button class="welcome-logout" type="submit">{{ modalMode === 'add' ? 'Enregistrer' : 'Mettre à jour' }}</button>
+          <button type="button" class="btn-delete" (click)="closeModal()">Annuler</button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 
 </div>
